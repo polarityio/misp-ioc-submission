@@ -1,9 +1,8 @@
 polarity.export = PolarityComponent.extend({
   details: Ember.computed.alias('block.data.details'),
-  entitiesThatExistInTS: Ember.computed.alias('details.entitiesThatExistInTS'),
+  entitiesThatExistInMISP: Ember.computed.alias('details.entitiesThatExistInMISP'),
   notFoundEntities: Ember.computed.alias('details.notFoundEntities'),
   threatTypes: Ember.computed.alias('details.threatTypes'),
-  orgTags: Ember.computed.alias('details.orgTags'),
   existingTags: [],
   isPublic: false,
   isAnonymous: false,
@@ -15,14 +14,16 @@ polarity.export = PolarityComponent.extend({
   maxTagsInBlock: 10,
   deleteMessage: '',
   deleteErrorMessage: '',
-  deleteIsRunning: '',
+  deleteIsRunning: false,
+  isDeleting: false,
+  entityToDelete: {},
   createMessage: '',
   createErrorMessage: '',
-  createIsRunning: '',
+  createIsRunning: false,
   submitThreatType: '',
-  submitSeverity: '',
+  submitSeverity: 'low',
   submitConfidence: 50,
-  TLP: '',
+  TLP: 'red',
   selectedTag: '',
   editingTags: false,
   tagVisibility: [
@@ -30,17 +31,25 @@ polarity.export = PolarityComponent.extend({
     { name: 'My Organization', value: 'red' }
   ],
   selectedTagVisibility: { name: 'My Organization', value: 'red' },
+  interactionDisabled: Ember.computed('isDeleting', 'createIsRunning', function () {
+    return this.get('isDeleting') || this.get('createIsRunning');
+  }),
   init() {
-    this.set(
-      'existingTags',
-      this.get('orgTags').map((orgTag) => ({ name: orgTag }))
-    );
+    this.set('submitThreatType', this.threatTypes[0].type);
     this.set('newIocs', this.get('notFoundEntities').slice(1));
     this.set('newIocsToSubmit', this.get('notFoundEntities').slice(0, 1));
     this._super(...arguments);
   },
   actions: {
-    deleteItem: function (entity) {
+    initiateItemDeletion: function (entity) {
+      this.set('isDeleting', true);
+      this.set('entityToDelete', entity);
+    },
+    cancelItemDeletion: function () {
+      this.set('isDeleting', false);
+      this.set('entityToDelete', {});
+    },
+    confirmDelete: function () {
       const outerThis = this;
       outerThis.set('deleteMessage', '');
       outerThis.set('deleteErrorMessage', '');
@@ -51,14 +60,14 @@ polarity.export = PolarityComponent.extend({
         .sendIntegrationMessage({
           data: {
             action: 'deleteItem',
-            entity,
+            entity: outerThis.get('entityToDelete'),
             newIocs: outerThis.get('newIocs'),
-            intelObjects: outerThis.get('entitiesThatExistInTS')
+            intelObjects: outerThis.get('entitiesThatExistInMISP')
           }
         })
         .then(({ newIocs, newList }) => {
           outerThis.set('newIocs', newIocs);
-          outerThis.set('entitiesThatExistInTS', newList);
+          outerThis.set('entitiesThatExistInMISP', newList);
           outerThis.set('deleteMessage', 'Successfully Deleted IOC');
         })
         .catch((err) => {
@@ -71,13 +80,15 @@ polarity.export = PolarityComponent.extend({
           );
         })
         .finally(() => {
+          this.set('isDeleting', false);
+          this.set('entityToDelete', {});
           outerThis.set('deleteIsRunning', false);
           outerThis.get('block').notifyPropertyChange('data');
           setTimeout(() => {
             outerThis.set('deleteMessage', '');
             outerThis.set('deleteErrorMessage', '');
             outerThis.get('block').notifyPropertyChange('data');
-          }, 3000);
+          }, 5000);
         });
     },
     removeSubmitItem: function (entity) {
@@ -121,7 +132,7 @@ polarity.export = PolarityComponent.extend({
         setTimeout(() => {
           outerThis.set('createErrorMessage', '');
           outerThis.get('block').notifyPropertyChange('data');
-        }, 1500);
+        }, 5000);
         return;
       }
 
@@ -134,7 +145,7 @@ polarity.export = PolarityComponent.extend({
           data: {
             action: 'submitItems',
             newIocsToSubmit: outerThis.get('newIocsToSubmit'),
-            previousEntitiesInTS: outerThis.get('entitiesThatExistInTS'),
+            previousEntitiesInTS: outerThis.get('entitiesThatExistInMISP'),
             submitPublic: outerThis.get('isPublic'),
             isAnonymous: outerThis.get('isAnonymous'),
             submitConfidence: outerThis.get('submitConfidence'),
@@ -149,8 +160,8 @@ polarity.export = PolarityComponent.extend({
             selectedTagVisibility: outerThis.get('selectedTagVisibility')
           }
         })
-        .then(({ entitiesThatExistInTS, orgTags }) => {
-          outerThis.set('entitiesThatExistInTS', entitiesThatExistInTS);
+        .then(({ entitiesThatExistInMISP, orgTags }) => {
+          outerThis.set('entitiesThatExistInMISP', entitiesThatExistInMISP);
           outerThis.set('orgTags', orgTags);
           outerThis.set('newIocsToSubmit', []);
           outerThis.set('createMessage', 'Successfully Created IOCs');
@@ -169,7 +180,7 @@ polarity.export = PolarityComponent.extend({
             outerThis.set('createMessage', '');
             outerThis.set('createErrorMessage', '');
             outerThis.get('block').notifyPropertyChange('data');
-          }, 3000);
+          }, 5000);
         });
     },
     editTags: function () {
@@ -179,25 +190,57 @@ polarity.export = PolarityComponent.extend({
     deleteTag: function (tagToDelete) {
       this.set(
         'selectedTags',
-        this.get('selectedTags').filter((selectedTag) => selectedTag !== tagToDelete)
+        this.get('selectedTags').filter(
+          (selectedTag) => selectedTag.name !== tagToDelete.name
+        )
       );
     },
     searchTags: function (term) {
       const outerThis = this;
       return new Ember.RSVP.Promise((resolve, reject) => {
         if (term) {
-          const tags = outerThis
-            .get('orgTags')
-            .filter((orgTag) => orgTag.toLowerCase().includes(term.toLowerCase()))
-            .map((orgTag) => ({ name: orgTag }));
+          const outerThis = this;
+          outerThis.set('createMessage', '');
+          outerThis.set('createErrorMessage', '');
+          outerThis.get('block').notifyPropertyChange('data');
 
-          resolve([{ name: term, isNew: true }].concat(tags));
+          outerThis
+            .sendIntegrationMessage({
+              data: {
+                action: 'searchTags',
+                term
+              }
+            })
+            .then(({ tags }) => {
+              resolve([{ name: term, isNew: true }].concat(tags));
+            })
+            .catch((err) => {
+              outerThis.set(
+                'createErrorMessage',
+                'Search Tags Failed: ' +
+                  (err &&
+                    (err.detail ||
+                      err.err ||
+                      err.message ||
+                      err.title ||
+                      err.description)) || 'Unknown Reason'
+              );
+            })
+            .finally(() => {
+              outerThis.get('block').notifyPropertyChange('data');
+              setTimeout(() => {
+                outerThis.set('createMessage', '');
+                outerThis.set('createErrorMessage', '');
+                outerThis.get('block').notifyPropertyChange('data');
+              }, 5000);
+            });
         } else {
           resolve(outerThis.get('existingTags'));
         }
       });
     },
     addTag: function () {
+      //TODO
       const selectedTag = this.get('selectedTag');
       const selectedTags = this.get('selectedTags');
 

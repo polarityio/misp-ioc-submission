@@ -1,27 +1,26 @@
 const fp = require('lodash/fp');
 const { THREAT_TYPES } = require('./constants');
 
-const createLookupResults = (options, entities, _entitiesThatExistInTS, orgTags) => {
-  const entitiesThatExistInTS = fp.filter(
+const createLookupResults = (options, entities, _entitiesThatExistInMISP) => {
+  const entitiesThatExistInMISP = fp.filter(
     ({ value }) =>
       fp.any(({ value: _value }) => fp.toLower(value) === fp.toLower(_value), entities),
-    _entitiesThatExistInTS
+    _entitiesThatExistInMISP
   );
-  const notFoundEntities = getNotFoundEntities(entitiesThatExistInTS, entities);
+  const notFoundEntities = getNotFoundEntities(entitiesThatExistInMISP, entities);
   return [
     {
       entity: { ...entities[0], value: 'MISP IOC Submission' },
       isVolatile: true,
       data: {
         summary: [
-          ...(entitiesThatExistInTS.length ? ['Entities Found'] : []),
+          ...(entitiesThatExistInMISP.length ? ['Entities Found'] : []),
           ...(notFoundEntities.length ? ['New Entites'] : [])
         ],
         details: {
-          url: options.uiUrl,
-          entitiesThatExistInTS,
+          url: options.url,
+          entitiesThatExistInMISP,
           notFoundEntities,
-          orgTags,
           threatTypes: getThreatTypes(entities)
         }
       }
@@ -29,12 +28,12 @@ const createLookupResults = (options, entities, _entitiesThatExistInTS, orgTags)
   ];
 };
 
-const getNotFoundEntities = (entitiesThatExistInTS, entities) =>
+const getNotFoundEntities = (entitiesThatExistInMISP, entities) =>
   fp.reduce(
     (agg, entity) =>
       !fp.any(
         ({ value }) => fp.lowerCase(entity.value) === fp.lowerCase(value),
-        entitiesThatExistInTS
+        entitiesThatExistInMISP
       )
         ? agg.concat({
             ...entity,

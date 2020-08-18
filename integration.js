@@ -19,8 +19,7 @@ const doLookup = async (entities, { url, uiUrl, ..._options }, cb) => {
   Logger.debug({ entities }, 'Entities');
   const options = {
     ..._options,
-    url: url.endsWith('/') ? url.slice(0, -1) : url,
-    uiUrl: uiUrl.endsWith('/') ? uiUrl.slice(0, -1) : uiUrl
+    url: url.endsWith('/') ? url.slice(0, -1) : url
   };
 
   let lookupResults;
@@ -32,7 +31,7 @@ const doLookup = async (entities, { url, uiUrl, ..._options }, cb) => {
       Logger
     );
   } catch (error) {
-    Logger.error({ error }, 'Get Lookup Results Failed');
+    Logger.error(error, 'Get Lookup Results Failed');
     return cb(handleError(error));
   }
 
@@ -51,7 +50,7 @@ const onMessage = async ({ data: { action, ...actionParams} }, options, callback
   } else if (action === 'getId') {
     submitItems(actionParams, options, Logger, callback);
   } else if (action === 'searchTags') {
-    searchTags();
+    searchTags(actionParams, options, Logger, callback);
   } else {
     callback(null, {});
   }
@@ -171,8 +170,9 @@ const submitItems = async (
       orgTags: orgTags.concat(newTags)
     });
   } catch (error) {
-    Logger.trace(
-      { detail: 'Failed to Create IOC in MISP', error },
+    Logger.error(
+      error,
+      { detail: 'Failed to Create IOC in MISP' },
       'IOC Creation Failed'
     );
     return callback({
@@ -182,20 +182,42 @@ const submitItems = async (
   }
 };
 
-const searchTags = async (options) => {
-  caches.set(`${options.email}${options.apiKey}needToSearchTagsAgain`, false);
+const searchTags = async ({ term }, options, Logger, callback) => {
   try {
-    if (needToSearchTagsAgain) {
-      
-      caches.set(`${options.email}${options.apiKey}needToSearchTagsAgain`, false);
-      caches.set(`${options.email}${options.apiKey}tags`, orgTags);
-    }
-    callback(null, {
-      orgTags: caches.get(`${options.email}${options.apiKey}tags`)
-    });
-  } catch (error) {
+    
+    const tags = fp.getOr(
+      [],
+      'body.Tag',
+      await requestWithDefaults({
+        url: `${options.url}/tags/index/searchall:${term}`,
+        method: 'GET',
+        headers: {
+          Authorization: options.apiKey,
+          Accept: 'application/json',
+          'Content-type': 'application/json'
+        }
+      })
+    );
     Logger.trace(
-      { detail: 'Failed to Get Tags from MISP', error },
+      {
+        tags,
+        tagspure: await requestWithDefaults({
+          url: `${options.url}/tags/index/searchall:${term}`,
+          method: 'GET',
+          headers: {
+            Authorization: options.apiKey,
+            Accept: 'application/json',
+            'Content-type': 'application/json'
+          }
+        })
+      },
+      'SDKLFJSDKLFJ'
+    );
+    callback(null, { tags });
+  } catch (error) {
+    Logger.error(
+      error,
+      { detail: 'Failed to Get Tags from MISP' },
       'Get Tags Failed'
     );
     return callback({

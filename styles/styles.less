@@ -1,23 +1,56 @@
 .external-link-icon {
-  font-size: 10px;
+  font-size: 8px;
+  margin-bottom: 1px;
+}
+
+.p-title {
+  font-weight: 600;
 }
 
 .p-value {
   word-break: normal;
 }
 
-.intelItemsWrapper {
-  width: 100%;
-  & > .intelItems {
-    & > .intelItem {
-      //first child max width
-      //second childe min width
-    }
+table {
+  td.icon {
+    width: 25px;
+  }
+
+  td.type {
+    width: 60px;
   }
 }
 
 .delete {
   color: #ff2753;
+  font-size: 13px;
+}
+
+.no-style-button {
+  font-size: 100%;
+  font-family: inherit;
+  border: 0;
+  padding: 0;
+
+  &:hover,
+  &:focus {
+    background: inherit;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:active {
+    transform: none;
+  }
+}
+
+.create-message {
+  margin-right: 15px !important;
+}
+
+.remove {
   font-size: 13px;
 }
 
@@ -30,38 +63,13 @@
   padding-bottom: 7px;
 }
 
-.interactiveTable {
-  padding-top: 20px;
-}
-
-.input-wrapper {
-  margin-top: 5px;
-}
-
-.inputs {
-  padding-top: 10px;
-}
-
-.submitButton {
-  margin-right: 10px;
-}
-
 .selectContainer {
   display: flex;
   padding-top: 2px;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
+
   .p-value {
     width: 110px;
-  }
-  .selectThreatType { 
-    height: 40px;
-  }
-}
-
-.confidence {
-  padding-top: 5px;
-  .confidenceRange {
-    width: 100%;
   }
 }
 
@@ -78,7 +86,6 @@
   color: #ff4559;
 }
 
-
 .edit-tags-btn-container {
   margin-top: 10px;
 }
@@ -86,6 +93,7 @@
 .edit-tags-container {
   margin-top: 10px;
   margin-bottom: 10px;
+
   .add-tag-container {
     margin-top: 10px;
   }
@@ -94,6 +102,9 @@
 a.tag {
   border: 2px solid #000;
   color: #000;
+  &:hover {
+    color: #0082bc;
+  }
   padding: 2px 0px 2px 5px;
   display: inline-block;
   margin: 2px 0;
@@ -116,4 +127,49 @@ div.item:last-child {
 div.additional-sources-count {
   text-align: right;
   padding-right: 5px;
+}
+
+.p-btn {
+  height: 30px;
+  font-size: 12px !important;
+  font-weight: 500;
+  min-width: 95px;
+}
+
+.modal-open {
+  min-height: 145px;
+}
+
+.ioc-deletion-modal {
+  position: absolute;
+  background: #ededed;
+  border: #cdcdcd 1px solid;
+  top: 65px;
+  left: 36px;
+  width: calc(100% - 60px);
+  z-index: 1;
+  padding-top: 6px;
+  padding-bottom: 0px;
+  padding-right: 8px;
+  padding-left: 8px;
+
+  .p-key {
+    color: #616a71 !important;
+    
+    div {
+      padding-top: 4px;
+    }
+  }
+
+  .delete-confirmation-button {
+    padding-top: 6px;
+    display: flex;
+    justify-content: flex-end;
+
+    .cancel-delete {
+      margin-right: 8px;
+      background-color: white;
+      border-radius: 2px;
+    }
+  }
 }

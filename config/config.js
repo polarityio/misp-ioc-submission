@@ -4,7 +4,7 @@ module.exports = {
   description:
     'Malware Information and Sharing Platform (MISP) threat intelligence platform IOC Submission',
   entityTypes: ['domain', 'IPv4', 'IPv6', 'hash'],
-  styles: ['./styles/misp.less'],
+  styles: ['./styles/styles.less'],
   block: {
     component: {
       file: './components/block.js'
@@ -35,14 +35,14 @@ module.exports = {
      * to the MISP servers without valid SSL certificates.  Please note that we do NOT recommending setting this
      * to false in a production environment.
      */
-    rejectUnauthorized: true
+    rejectUnauthorized: false
   },
   logging: {
     level: 'trace' //trace, debug, info, warn, error, fatal
   },
   options: [
     {
-      key: 'uri',
+      key: 'url',
       name: 'MISP URL',
       description:
         'URL of your MISP instance to include the schema (i.e., https://) and port if applicable',
@@ -61,23 +61,14 @@ module.exports = {
       adminOnly: false
     },
     {
-      key: 'enableAddingTags',
-      name: 'Enable Adding Tags',
-      description: 'If checked, users can add tags to an event from the Overlay Window',
-      default: true,
-      type: 'boolean',
-      userCanEdit: false,
-      adminOnly: true
-    },
-    {
-      key: 'enableRemovingTags',
-      name: 'Enable Removing Tags',
+      key: 'allowDelete',
+      name: 'Allow IOC Deletion',
       description:
-        'If checked, users can remove tags from an event from the Overlay Window',
+        'This setting allows you to perminately delete all records on MISP related to an IOC.',
       default: true,
       type: 'boolean',
-      userCanEdit: false,
-      adminOnly: true
+      userCanEdit: true,
+      adminOnly: false
     }
   ]
 };
