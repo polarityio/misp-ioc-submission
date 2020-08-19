@@ -141,81 +141,53 @@
       <h1 class="p-title py-1">
         {{fa-icon "cog" size="sm" fixedWidth=true}} Submission Options
       </h1>
-    <div>
-      <label>
-        {{input
-          type="checkbox"
-          checked=isPublic
-          disabled=interactionDisabled
-        }}
-        <span class="align-top">Submit as Public</span>
-      </label>
-    </div>
-    <div>
-      <label>
-        {{input
-          type="checkbox"
-          checked=isAnonymous
-          disabled=interactionDisabled
-        }}
-        <span class="align-top">Is Anonymous</span>
-      </label>
-    </div>
-    <div>
-      <label>
-        {{input
-          type="checkbox"
-          checked=manuallySetConfidence
-          disabled=interactionDisabled
-        }}
-        <span class="align-top">Manually Set Confidence</span>
-      </label>
-    </div>
-    {{#if manuallySetConfidence}}
-      <div class="py-1">
-        <span class="p-key">Confidence: </span>
-        <span class="p-value">{{submitConfidence}}</span>
-        <div>
-          <input
-            type="range"
-            class="w-100 py-1"
-            oninput={{action (mut submitConfidence) value="target.value"}}
-            min="0"
-            max="100"
-            disabled={{interactionDisabled}}
-            value={{submitConfidence}}
-            steps="1"
-          />
-        </div>
+      <div>
+        <label>
+          {{input
+            type="checkbox"
+            checked=shouldPublish
+            disabled=interactionDisabled
+          }}
+          <span class="align-top">Should Publish</span>
+        </label>
       </div>
-    {{/if}}
       <div class="selectContainer pt-1">
-        <span class="p-value">TLP: </span>
-        <select class="w-100" onchange={{action (mut TLP) value="target.value"}} disabled={{interactionDisabled}}>
-            <option value="red">Red</option>
-            <option value="amber">Amber</option>
-            <option value="green">Green</option>
-            <option value="white">White</option>
+        <span class="p-value">Distribution: </span>
+        <select class="w-100" onchange={{action (mut distribution) value="target.value"}} disabled={{interactionDisabled}}>
+            <option value="0">Your organisation only</option>
+            <option value="1">This community only</option>
+            <option value="2">Connected communities</option>
+            <option value="3">All communities</option>
         </select>
       </div>
       <div class="selectContainer">
-        <span class="p-value">Severity: </span>
-        <select class="w-100" onchange={{action (mut submitSeverity) value="target.value"}} disabled={{interactionDisabled}}>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="very-high">Very High</option>
+        <span class="p-value">Threat Level: </span>
+        <select class="w-100" onchange={{action (mut threatLevel) value="target.value"}} disabled={{interactionDisabled}}>
+            <option value="1">High</option>
+            <option value="2">Medium</option>
+            <option value="3">Low</option>
+            <option value="4">Undefined</option>
         </select>
       </div>
       <div class="selectContainer">
-        <span class="p-value">Threat Type: </span>
-        <select class="w-100" onchange={{action (mut submitThreatType) value="target.value"}} disabled={{interactionDisabled}}>
-          {{#each threatTypes as |threatType|}}
-            <option value="{{threatType.type}}">{{threatType.name}}</option>
-          {{/each}}
+        <span class="p-value">Analysis: </span>
+        <select class="w-100" onchange={{action (mut analysis) value="target.value"}} disabled={{interactionDisabled}}>
+            <option value="0">Initial</option>
+            <option value="1">Ongoing</option>
+            <option value="2">Completed</option>
         </select>
       </div>
-
+      <div class="selectContainer">
+        <span class="p-value">Event Info: </span>
+        <input 
+          type="text"
+          class="w-100"
+          onchange={{action (mut eventInfo) value="target.value"}}
+          value={{eventInfo}}
+          disabled={{interactionDisabled}}
+        />
+      </div>
+      
       <div class="tag-container">
         <h1 class="p-title">
           {{fa-icon "tags" fixedWidth=true}} Tags
@@ -235,7 +207,7 @@
 
         {{#if editingTags}}
           <div class="edit-tags-container">
-            <div class="edit-visibility-container">
+            {{!-- <div class="edit-visibility-container">
               {{#power-select
                 options=tagVisibility
                 selected=selectedTagVisibility
@@ -246,7 +218,7 @@
                 onChange=(action (mut selectedTagVisibility)) as |visibility|}}
                 {{visibility.name}}
               {{/power-select}}
-            </div>
+            </div> --}}
             <div class="input-group add-tag-container">
               {{#power-select
                 triggerClass="form-control"

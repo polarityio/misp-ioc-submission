@@ -2,16 +2,14 @@ polarity.export = PolarityComponent.extend({
   details: Ember.computed.alias('block.data.details'),
   entitiesThatExistInMISP: Ember.computed.alias('details.entitiesThatExistInMISP'),
   notFoundEntities: Ember.computed.alias('details.notFoundEntities'),
-  threatTypes: Ember.computed.alias('details.threatTypes'),
-  existingTags: [],
-  isPublic: false,
-  isAnonymous: false,
-  manuallySetConfidence: false,
+  shouldPublish: false,
+  distribution: 0,
+  threatLevel: 1,
+  analysis: 0,
+  eventInfo: 'Polarity Bulk Attribute Creation',
   newIocs: [],
   newIocsToSubmit: [],
-  selectedTags: [{ name: 'Polarity' }],
-  tagsErrorMessage: '',
-  maxTagsInBlock: 10,
+  selectedTags: [],
   deleteMessage: '',
   deleteErrorMessage: '',
   deleteIsRunning: false,
@@ -20,24 +18,16 @@ polarity.export = PolarityComponent.extend({
   createMessage: '',
   createErrorMessage: '',
   createIsRunning: false,
-  submitThreatType: '',
-  submitSeverity: 'low',
-  submitConfidence: 50,
-  TLP: 'red',
   selectedTag: '',
   editingTags: false,
-  tagVisibility: [
-    { name: 'Anomali Community', value: 'white' },
-    { name: 'My Organization', value: 'red' }
-  ],
-  selectedTagVisibility: { name: 'My Organization', value: 'red' },
   interactionDisabled: Ember.computed('isDeleting', 'createIsRunning', function () {
     return this.get('isDeleting') || this.get('createIsRunning');
   }),
   init() {
-    this.set('submitThreatType', this.threatTypes[0].type);
     this.set('newIocs', this.get('notFoundEntities').slice(1));
     this.set('newIocsToSubmit', this.get('notFoundEntities').slice(0, 1));
+
+    this.set('selectedTags', [ this.get('details.polarityTag') || { name: "Polarity", isNew: true } ]);
     this._super(...arguments);
   },
   actions: {
@@ -113,10 +103,6 @@ polarity.export = PolarityComponent.extend({
         {
           condition: () => !outerThis.get('newIocsToSubmit').length,
           message: 'No Items to Submit...'
-        },
-        {
-          condition: () => !outerThis.get('submitThreatType'),
-          message: 'Must Select a Threat Type...'
         }
       ];
 
@@ -145,24 +131,17 @@ polarity.export = PolarityComponent.extend({
           data: {
             action: 'submitItems',
             newIocsToSubmit: outerThis.get('newIocsToSubmit'),
-            previousEntitiesInTS: outerThis.get('entitiesThatExistInMISP'),
-            submitPublic: outerThis.get('isPublic'),
-            isAnonymous: outerThis.get('isAnonymous'),
-            submitConfidence: outerThis.get('submitConfidence'),
-            manuallySetConfidence: outerThis.get('manuallySetConfidence'),
-            TLP: outerThis.get('TLP'),
-            submitSeverity: outerThis.get('submitSeverity'),
-            submitThreatType: outerThis.get('submitThreatType'),
-            submitTags: outerThis
-              .get('selectedTags')
-              .map((selectedTag) => selectedTag.name),
-            orgTags: outerThis.get('orgTags'),
-            selectedTagVisibility: outerThis.get('selectedTagVisibility')
+            previousEntitiesInMISP: outerThis.get('entitiesThatExistInMISP'),
+            shouldPublish: outerThis.get('shouldPublish'),
+            distribution: outerThis.get('distribution'),
+            threatLevel: outerThis.get('threatLevel'),
+            analysis: outerThis.get('analysis'),
+            eventInfo: outerThis.get('eventInfo'),
+            submitTags: outerThis.get('selectedTags')
           }
         })
-        .then(({ entitiesThatExistInMISP, orgTags }) => {
+        .then(({ entitiesThatExistInMISP,  }) => {
           outerThis.set('entitiesThatExistInMISP', entitiesThatExistInMISP);
-          outerThis.set('orgTags', orgTags);
           outerThis.set('newIocsToSubmit', []);
           outerThis.set('createMessage', 'Successfully Created IOCs');
         })
@@ -235,12 +214,11 @@ polarity.export = PolarityComponent.extend({
               }, 5000);
             });
         } else {
-          resolve(outerThis.get('existingTags'));
+          resolve();
         }
       });
     },
     addTag: function () {
-      //TODO
       const selectedTag = this.get('selectedTag');
       const selectedTags = this.get('selectedTags');
 

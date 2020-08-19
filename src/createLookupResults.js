@@ -1,7 +1,12 @@
 const fp = require('lodash/fp');
 const { THREAT_TYPES } = require('./constants');
 
-const createLookupResults = (options, entities, _entitiesThatExistInMISP) => {
+const createLookupResults = (
+  options,
+  entities,
+  _entitiesThatExistInMISP,
+  polarityTag
+) => {
   const entitiesThatExistInMISP = fp.filter(
     ({ value }) =>
       fp.any(({ value: _value }) => fp.toLower(value) === fp.toLower(_value), entities),
@@ -21,7 +26,8 @@ const createLookupResults = (options, entities, _entitiesThatExistInMISP) => {
           url: options.url,
           entitiesThatExistInMISP,
           notFoundEntities,
-          threatTypes: getThreatTypes(entities)
+          threatTypes: getThreatTypes(entities),
+          polarityTag
         }
       }
     }

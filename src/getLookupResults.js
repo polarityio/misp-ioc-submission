@@ -38,8 +38,22 @@ const getLookupResults = (
         )
       );
       
+      const polarityTag = fp.get(
+        'body.Tag[0]',
+        await requestWithDefaults({
+          url: `${options.url}/tags/index/searchall:polarity`,
+          method: 'GET',
+          headers: {
+            Authorization: options.apiKey,
+            Accept: 'application/json',
+            'Content-type': 'application/json'
+          }
+        })
+      );
+
       Logger.trace({
         test: 'entitiesThatExistInMISP',
+        polarityTag,
         entitiesThatExistInMISP
       });
 
@@ -48,7 +62,8 @@ const getLookupResults = (
       const lookupResults = createLookupResults(
         options,
         entitiesPartition,
-        entitiesThatExistInMISP
+        entitiesThatExistInMISP,
+        polarityTag
       );
 
       Logger.trace({ lookupResults, entitiesThatExistInMISP }, 'Lookup Results');
