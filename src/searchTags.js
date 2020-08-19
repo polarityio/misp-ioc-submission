@@ -1,12 +1,18 @@
 const fp = require('lodash/fp');
 
-const searchTags = async ({ term }, requestWithDefaults, options, Logger, callback) => {
+const searchTags = async (
+  { term, selectedTags },
+  requestWithDefaults,
+  options,
+  Logger,
+  callback
+) => {
   try {
-    const tags = fp.getOr(
+    const tagResults = fp.getOr(
       [],
       'body.Tag',
       await requestWithDefaults({
-        url: `${options.url}/tags/index/searchall:${term}`,
+        url: `${options.url}/tags/index/searchall:${fp.toLower(term)}`,
         method: 'GET',
         headers: {
           Authorization: options.apiKey,
@@ -15,6 +21,17 @@ const searchTags = async ({ term }, requestWithDefaults, options, Logger, callba
         }
       })
     );
+
+    const tags = fp.flow(
+      fp.filter((tagResult) =>
+        fp.every(
+          (selectedTag) =>
+            _getComparableString(tagResult) !== _getComparableString(selectedTag),
+          selectedTags
+        )
+      ),
+      fp.uniqBy(_getComparableString)
+    )(tagResults);
 
     callback(null, { tags });
   } catch (error) {
@@ -25,5 +42,7 @@ const searchTags = async ({ term }, requestWithDefaults, options, Logger, callba
     });
   }
 };
+
+const _getComparableString = fp.flow(fp.getOr('', 'name'), fp.lowerCase, fp.trim);
 
 module.exports = searchTags;

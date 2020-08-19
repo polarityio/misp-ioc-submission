@@ -27,7 +27,13 @@ polarity.export = PolarityComponent.extend({
     this.set('newIocs', this.get('notFoundEntities').slice(1));
     this.set('newIocsToSubmit', this.get('notFoundEntities').slice(0, 1));
 
-    this.set('selectedTags', [ this.get('details.polarityTag') || { name: "Polarity", isNew: true } ]);
+    this.set('selectedTags', [
+      this.get('details.polarityTag') || {
+        name: 'Polarity',
+        colour: '#5ecd1e',
+        isNew: true
+      }
+    ]);
     this._super(...arguments);
   },
   actions: {
@@ -187,11 +193,12 @@ polarity.export = PolarityComponent.extend({
             .sendIntegrationMessage({
               data: {
                 action: 'searchTags',
-                term
+                term,
+                selectedTags: this.get('selectedTags')
               }
             })
             .then(({ tags }) => {
-              resolve([{ name: term, isNew: true }].concat(tags));
+              resolve([{ name: term, colour: 'black', isNew: true }].concat(tags));
             })
             .catch((err) => {
               outerThis.set(
@@ -223,12 +230,13 @@ polarity.export = PolarityComponent.extend({
       const selectedTags = this.get('selectedTags');
 
       let isDuplicate = selectedTags.find(
-        (tag) => tag.name.toLowerCase() === selectedTag.name.toLowerCase()
+        (tag) => tag.name.toLowerCase().trim() === selectedTag.name.toLowerCase().trim()
       );
 
       if (!isDuplicate) {
         this.set('selectedTags', selectedTags.concat(selectedTag));
       }
+      this.set('selectedTag', '');
     }
   }
 });

@@ -1,5 +1,5 @@
 const fp = require('lodash/fp');
-const { THREAT_TYPES } = require('./constants');
+const { ENTITY_TYPES } = require('./constants');
 
 const createLookupResults = (
   options,
@@ -7,12 +7,15 @@ const createLookupResults = (
   _entitiesThatExistInMISP,
   polarityTag
 ) => {
-  const entitiesThatExistInMISP = fp.filter(
-    ({ value }) =>
-      fp.any(({ value: _value }) => fp.toLower(value) === fp.toLower(_value), entities),
-    _entitiesThatExistInMISP
-  );
+  const entitiesThatExistInMISP = fp.flow(
+    fp.filter(({ value }) =>
+      fp.any(({ value: _value }) => fp.toLower(value) === fp.toLower(_value), entities)
+    ),
+    fp.map((foundEntity) => ({ ...foundEntity, type: ENTITY_TYPES[foundEntity.type]}))
+  )(_entitiesThatExistInMISP);
+
   const notFoundEntities = getNotFoundEntities(entitiesThatExistInMISP, entities);
+
   return [
     {
       entity: { ...entities[0], value: 'MISP IOC Submission' },
@@ -26,8 +29,7 @@ const createLookupResults = (
           url: options.url,
           entitiesThatExistInMISP,
           notFoundEntities,
-          threatTypes: getThreatTypes(entities),
-          polarityTag
+          polarityTag: polarityTag && { ...polarityTag, colour: '#5ecd1e' }
         }
       }
     }
@@ -43,18 +45,11 @@ const getNotFoundEntities = (entitiesThatExistInMISP, entities) =>
       )
         ? agg.concat({
             ...entity,
-            type: fp.includes('IP', entity.type) ? 'ip' : entity.type
+            type: fp.includes('IP', entity.type) ? 'ip' : fp.toLower(entity.type)
           })
         : agg,
     [],
     entities
   );
-
-const getThreatTypes = fp.flow(
-  fp.flatMap(fp.get('types')),
-  fp.uniq,
-  fp.flatMap((uniqEntityType) => fp.getOr([], uniqEntityType, THREAT_TYPES)),
-  fp.uniqBy('type')
-);
 
 module.exports = createLookupResults;

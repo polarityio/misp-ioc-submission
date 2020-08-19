@@ -1,6 +1,6 @@
 const fp = require('lodash/fp');
 
-const { ATTIBUTE_TYPES } = require('./src/constants');
+const { ATTIBUTE_TYPES, ENTITY_TYPES } = require('./constants');
 
 const submitItems = async (
   {
@@ -30,7 +30,7 @@ const submitItems = async (
       requestWithDefaults
     );
 
-    await createTags(createdAttributes, submitTags, options, requestWithDefaults);
+    await createTags(createdAttributes, submitTags, options, requestWithDefaults, Logger);
 
     return callback(null, {
       entitiesThatExistInMISP: [...createdAttributes, ...previousEntitiesInMISP]
@@ -78,26 +78,29 @@ const createAttributes = async (
     })
   });
 
-  const buildAttributes = fp.map(({ type, value }) => ({
-    type: ATTIBUTE_TYPES[type] || 'other',
-    category: 'Network activity',
-    to_ids: false,
-    distribution: '5',
-    comment: '',
-    value
-  }));
-
   const createdAttributes = fp.getOr([], 'body.Event.Attribute', eventCreationResults);
 
-  return createdAttributes;
+  return fp.map((foundEntity) => ({
+    ...foundEntity,
+    type: ENTITY_TYPES[foundEntity.type]
+  }))(createdAttributes);
 };
+
+const buildAttributes = fp.map(({ type, value }) => ({
+  type: ATTIBUTE_TYPES[type] || 'other',
+  category: 'Network activity',
+  to_ids: false,
+  distribution: '5',
+  comment: '',
+  value
+}));
 
 const createTags = (createdAttributes, submitTags, options, requestWithDefaults) =>
   Promise.all(
     fp.flow(
       fp.map(fp.get('uuid')),
       fp.flatMap((uuid) =>
-        fp.map(({ name: tag }) =>
+        fp.map(({ id, name }) =>
           requestWithDefaults({
             url: `${options.url}/tags/attachTagToObject/`,
             method: 'POST',
@@ -106,7 +109,7 @@ const createTags = (createdAttributes, submitTags, options, requestWithDefaults)
               Accept: 'application/json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ uuid, tag })
+            body: JSON.stringify({ uuid, tag: id || fp.trim(name)})
           })
         )(submitTags)
       )

@@ -51,14 +51,6 @@ const getLookupResults = (
         })
       );
 
-      Logger.trace({
-        test: 'entitiesThatExistInMISP',
-        polarityTag,
-        entitiesThatExistInMISP
-      });
-
-
-
       const lookupResults = createLookupResults(
         options,
         entitiesPartition,

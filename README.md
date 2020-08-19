@@ -1,6 +1,6 @@
 # Polarity MISP Integration
 
-The Polarity MISP integration allows Polarity to search your instance of MISP to return valid information about domains, IPs, and hashes.  The integration also allows you to add and remove IOC in bulk.
+The Polarity MISP integration allows Polarity to search your instance of MISP to return found domains, IPs, and hashes.  The integration also allows you to add and remove IOCs in bulk.
 
 
 ## MISP Integration Options
@@ -13,21 +13,13 @@ URL of your MISP instance to include the schema (i.e., https://) and port if app
 https://my-misp-server.internal
 ```
 
-### API Key
+### Authentication Key
 
-The authentication of the automation is performed via a secure key available in the MISP UI interface. Make sure you keep that key secret as it gives access to the entire database! The API key is available in the event actions menu under automation
+The authentication of the automation is performed via a secure key available in the MISP UI interface. Make sure you keep that key secret as it gives access to the entire database!
 
-### Enable Adding Tags
+### Allow IOC Deletion
 
-If checked, users can add tags to an event from the Overlay Window
-
-> Note that we recommend setting this option as an admin only option so the value is consistent across all your users.
-
-### Enable Removing Tags
-
-If checked, users can remove tags from an event from the Overlay Window
-
-> Note that we recommend setting this option as an admin only option so the value is consistent across all your users.
+If checked, users will be able to delete an Attribute from MISP. (this setting must be set to `User can view only`.
 
 
 ## Installation Instructions

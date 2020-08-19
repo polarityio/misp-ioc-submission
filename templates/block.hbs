@@ -27,7 +27,7 @@
         <tr>
           <td>
             {{#if (not interactionDisabled)}}
-              <a href="{{details.url}}/detail/{{intel.type}}/{{intel.value}}">{{intel.value}} {{fa-icon "external-link" fixedWidth=true class="external-link-icon"}}</a>
+              <a href="{{details.url}}/events/view/{{intel.event_id}}">{{intel.value}} {{fa-icon "external-link" fixedWidth=true class="external-link-icon"}}</a>
             {{else}}
               <a>{{intel.value}} {{fa-icon "external-link" fixedWidth=true class="external-link-icon"}}</a>
             {{/if}}
@@ -72,7 +72,7 @@
   </div>
 {{/if}}
 
-{{#if notFoundEntities}}
+{{#if (or newIocs.length newIocsToSubmit.length)}}
     <h1 class="p-title">
       {{fa-icon "sparkles" size="sm" fixedWidth=true}} New IOCs
     </h1>
@@ -193,7 +193,7 @@
           {{fa-icon "tags" fixedWidth=true}} Tags
         </h1>
         {{#each (limit selectedTags maxTagsInBlock) as |tag tagIndex|}}
-          <a href="{{details.url}}/events/index/searchtag:{{tag.id}}" class="tag">
+          <a href="{{details.url}}/events/index/searchtag:{{tag.id}}" class="tag" style="border-color: {{tag.colour}}" >
             {{tag.name}}
             <button class="tag-btn delete-tag-btn" {{action "deleteTag" tag}} disabled={{interactionDisabled}}>
               {{fa-icon "times" fixedWidth=true}}
@@ -207,18 +207,6 @@
 
         {{#if editingTags}}
           <div class="edit-tags-container">
-            {{!-- <div class="edit-visibility-container">
-              {{#power-select
-                options=tagVisibility
-                selected=selectedTagVisibility
-                searchEnabled=false
-                searchField="name"
-                placeholder="Visibility"
-                disabled=interactionDisabled
-                onChange=(action (mut selectedTagVisibility)) as |visibility|}}
-                {{visibility.name}}
-              {{/power-select}}
-            </div> --}}
             <div class="input-group add-tag-container">
               {{#power-select
                 triggerClass="form-control"
@@ -277,8 +265,8 @@
       {{/if}}
     </div>
 {{/if}}
-<div class={{if (and (not notFoundEntities.length) interactionDisabled) "modal-open"}}></div>
-{{#if (and (not entitiesThatExistInMISP.length) (not notFoundEntities.length))}}
+<div class={{if (and (not (or newIocs.length newIocsToSubmit.length)) interactionDisabled) "modal-open"}}></div>
+{{#if (and (not entitiesThatExistInMISP.length) (not (or newIocs.length newIocsToSubmit.length)))}}
   <div class="note">
     <span class="p-key"><em>All Found IOCs have been deleted</em></span>
   </div>

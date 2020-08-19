@@ -7,27 +7,22 @@ const deleteItem = async (
   Logger,
   callback
 ) => {
-  let _intelId;
-  if (!entity.id) {
-    const result = await requestWithDefaults({
-      // get object
-    });
-
-    _intelId = fp.get('body.objects.0.id', result);
-    if (!_intelId)
-      return callback(null, {
-        newList: fp.filter(({ value }) => value !== entity.value, intelObjects),
-        newIocs: [entity, ...newIocs]
-      });
-  }
-  _intelId = _intelId || entity.id;
-
   try {
     await requestWithDefaults({
-      //do delete
+      method: 'POST',
+      url: `${options.url}/attributes/delete/${entity.id}`,
+      headers: {
+        Authorization: options.apiKey,
+        Accept: 'application/json',
+        'Content-type': 'application/json'
+      }
     });
   } catch (error) {
-    Logger.error({ error }, 'Intel Deletion Error');
+    Logger.error(error, 'Attribute Deletion Error');
+    return callback({
+      err: error,
+      detail: 'Failed to Delete Attribute in MISP'
+    });
   }
 
   return callback(null, {
