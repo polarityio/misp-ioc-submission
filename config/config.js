@@ -35,10 +35,10 @@ module.exports = {
      * to the MISP servers without valid SSL certificates.  Please note that we do NOT recommending setting this
      * to false in a production environment.
      */
-    rejectUnauthorized: false
+    rejectUnauthorized: true
   },
   logging: {
-    level: 'trace' //trace, debug, info, warn, error, fatal
+    level: 'info' //trace, debug, info, warn, error, fatal
   },
   options: [
     {
