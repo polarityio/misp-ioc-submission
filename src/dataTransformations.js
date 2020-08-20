@@ -58,6 +58,5 @@ module.exports = {
   partitionFlatMap,
   getKeys,
   groupEntities,
-  splitOutIgnoredIps,
-  generateTimes
+  splitOutIgnoredIps
 };
