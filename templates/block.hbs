@@ -192,7 +192,7 @@
         <h1 class="p-title">
           {{fa-icon "tags" fixedWidth=true}} Tags
         </h1>
-        {{#each (limit selectedTags maxTagsInBlock) as |tag tagIndex|}}
+        {{#each (take maxTagsInBlock selectedTags) as |tag tagIndex|}}
           {{#if tag.isNew}}
             <span class="tag" style="border-color: {{tag.colour}}" >
               {{tag.name}}
