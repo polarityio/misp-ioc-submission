@@ -30,7 +30,8 @@ const searchTags = async (
           selectedTags
         )
       ),
-      fp.uniqBy(_getComparableString)
+      fp.uniqBy(_getComparableString),
+      fp.slice(0, 30)
     )(tagResults);
 
     callback(null, { tags });

@@ -99,19 +99,20 @@ table {
   }
 }
 
-a.tag {
+.tag {
   border: 2px solid #000;
-  color: #000;
-  &:hover {
-    color: #0082bc;
-  }
+  color: #000 !important;
   padding: 2px 0px 2px 5px;
   display: inline-block;
   margin: 2px 0;
   word-break: break-all;
 }
 
-a.tag.tlp-red {
+a.tag:hover {
+  color: #0082bc !important;
+}
+
+.tag.tlp-red {
   border: 2px solid #ff4559;
   color: #ff4559;
 }
