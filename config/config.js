@@ -3,7 +3,7 @@ module.exports = {
   acronym: 'MIS',
   description:
     'Malware Information and Sharing Platform (MISP) threat intelligence platform IOC Submission',
-  entityTypes: ['domain', 'IPv4', 'IPv6', 'hash'],
+  entityTypes: ['domain', 'IPv4', 'IPv6', 'hash', 'email'],
   styles: ['./styles/styles.less'],
   block: {
     component: {
