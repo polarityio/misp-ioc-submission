@@ -36,6 +36,45 @@ polarity.export = PolarityComponent.extend({
     ]);
     this._super(...arguments);
   },
+  searchTags: function (term, resolve, reject) {
+    const outerThis = this;
+    outerThis.set('createMessage', '');
+    outerThis.set('createErrorMessage', '');
+    outerThis.get('block').notifyPropertyChange('data');
+
+    outerThis
+      .sendIntegrationMessage({
+        data: {
+          action: 'searchTags',
+          term,
+          selectedTags: this.get('selectedTags')
+        }
+      })
+      .then(({ tags }) => {
+        outerThis.set(
+          'existingTags',
+          [...(term ? [{ name: term, colour: 'black', isNew: true }] : [])].concat(tags)
+        );
+      })
+      .catch((err) => {
+        outerThis.set(
+          'createErrorMessage',
+          'Search Tags Failed: ' +
+            (err &&
+              (err.detail || err.err || err.message || err.title || err.description)) ||
+            'Unknown Reason'
+        );
+      })
+      .finally(() => {
+        outerThis.get('block').notifyPropertyChange('data');
+        setTimeout(() => {
+          outerThis.set('createMessage', '');
+          outerThis.set('createErrorMessage', '');
+          outerThis.get('block').notifyPropertyChange('data');
+        }, 5000);
+        resolve();
+      });
+  },
   actions: {
     initiateItemDeletion: function (entity) {
       this.set('isDeleting', true);
@@ -146,7 +185,7 @@ polarity.export = PolarityComponent.extend({
             submitTags: outerThis.get('selectedTags')
           }
         })
-        .then(({ entitiesThatExistInMISP,  }) => {
+        .then(({ entitiesThatExistInMISP }) => {
           outerThis.set('entitiesThatExistInMISP', entitiesThatExistInMISP);
           outerThis.set('newIocsToSubmit', []);
           outerThis.set('createMessage', 'Successfully Created IOCs');
@@ -183,46 +222,7 @@ polarity.export = PolarityComponent.extend({
     searchTags: function (term) {
       const outerThis = this;
       return new Ember.RSVP.Promise((resolve, reject) => {
-        if (term) {
-          const outerThis = this;
-          outerThis.set('createMessage', '');
-          outerThis.set('createErrorMessage', '');
-          outerThis.get('block').notifyPropertyChange('data');
-
-          outerThis
-            .sendIntegrationMessage({
-              data: {
-                action: 'searchTags',
-                term,
-                selectedTags: this.get('selectedTags')
-              }
-            })
-            .then(({ tags }) => {
-              resolve([{ name: term, colour: 'black', isNew: true }].concat(tags));
-            })
-            .catch((err) => {
-              outerThis.set(
-                'createErrorMessage',
-                'Search Tags Failed: ' +
-                  (err &&
-                    (err.detail ||
-                      err.err ||
-                      err.message ||
-                      err.title ||
-                      err.description)) || 'Unknown Reason'
-              );
-            })
-            .finally(() => {
-              outerThis.get('block').notifyPropertyChange('data');
-              setTimeout(() => {
-                outerThis.set('createMessage', '');
-                outerThis.set('createErrorMessage', '');
-                outerThis.get('block').notifyPropertyChange('data');
-              }, 5000);
-            });
-        } else {
-          resolve();
-        }
+        Ember.run.debounce(this, this.searchTags, term, resolve, reject, 600);
       });
     },
     addTag: function () {

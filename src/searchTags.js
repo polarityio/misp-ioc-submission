@@ -31,7 +31,8 @@ const searchTags = async (
         )
       ),
       fp.uniqBy(_getComparableString),
-      fp.slice(0, 30)
+      fp.sortBy('attribute_count'),
+      fp.slice(0, 50)
     )(tagResults);
 
     callback(null, { tags });
