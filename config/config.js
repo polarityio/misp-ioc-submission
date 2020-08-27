@@ -57,7 +57,7 @@ module.exports = {
       description:
         'The authentication of the automation is performed via a secure key available in the MISP UI interface. Make sure you keep that key secret as it gives access to the entire database!',
       default: '',
-      type: 'text',
+      type: 'password',
       userCanEdit: true,
       adminOnly: false
     },
