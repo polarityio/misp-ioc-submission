@@ -8,10 +8,10 @@
         <span class="p-key">
           <span class="p-value"><em><b>DANGER:</b></em></span>
           <div>
-            <span>Deleting an indicator cannot be undone and will remove all data for the IOC in MISP.</span>
+            <span>Deleting an attribute cannot be undone and will remove all data for the attribute in MISP.  Deleting the attribute will not delete associated events.</span>
           </div>
           <div>
-            <span>Are you sure you want to delete all content relating to <em><b>{{entityToDelete.value}}</b></em>?</span>
+            <span>Are you sure you want to delete the attribute <em><b>{{entityToDelete.value}}</b></em>?</span>
           </div>
         </span>
         <div class="delete-confirmation-button">
@@ -178,8 +178,8 @@
         </select>
       </div>
       <div class="selectContainer">
-        <span class="p-value">Event Info: </span>
-        <input 
+        <span class="p-value">Event Name: </span>
+        <input
           type="text"
           class="w-100"
           onchange={{action (mut eventInfo) value="target.value"}}
@@ -187,7 +187,7 @@
           disabled={{interactionDisabled}}
         />
       </div>
-      
+
       <div class="tag-container">
         <h1 class="p-title">
           {{fa-icon "tags" fixedWidth=true}} Tags
