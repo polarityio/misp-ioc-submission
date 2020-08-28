@@ -1,6 +1,8 @@
 # Polarity MISP Integration
 
-The Polarity MISP integration allows Polarity to search your instance of MISP to return found domains, IPs, and hashes.  The integration also allows you to add and remove IOCs in bulk.
+The Polarity MISP integration allows Polarity to search your instance of MISP to return found domains, IPs, and hashes.  The integration also allows you to Create and Delete IOCs in bulk from MISP.
+
+> ***NOTE***: Attribute creation will creation will create a new event containing all Attributes submitted.
 
 
 ## MISP Integration Options
@@ -19,8 +21,9 @@ The authentication of the automation is performed via a secure key available in 
 
 ### Allow IOC Deletion
 
-If checked, users will be able to delete an Attribute from MISP. (this setting must be set to `User can view only`.
+If checked, users will be able to delete an Attribute from MISP. (this setting must be set to `User can view only`).
 
+> ***NOTE***: When you delete an Attribute you are doing a soft delete of the Attribute from the entire system, but will not delete Events containing those attributes.
 
 ## Installation Instructions
 

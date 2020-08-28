@@ -65,7 +65,7 @@ module.exports = {
       key: 'allowDelete',
       name: 'Allow IOC Deletion',
       description: 'If checked, users will be able to delete an Attribute from MISP.',
-      default: true,
+      default: false,
       type: 'boolean',
       userCanEdit: true,
       adminOnly: false

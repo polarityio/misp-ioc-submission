@@ -1,4 +1,5 @@
 const fp = require('lodash/fp');
+const TinyColor = require('@ctrl/tinycolor').TinyColor;
 
 const searchTags = async (
   { term, selectedTags },
@@ -32,7 +33,11 @@ const searchTags = async (
       ),
       fp.uniqBy(_getComparableString),
       fp.sortBy('attribute_count'),
-      fp.slice(0, 50)
+      fp.slice(0, 50),
+      fp.map((tag) => ({
+        ...tag,
+        font_color: new TinyColor(tag.colour).isDark() ? '#ffffff' : '#000000'
+      }))
     )(tagResults);
 
     callback(null, { tags });

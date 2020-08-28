@@ -194,30 +194,39 @@
         </h1>
         {{#each (take maxTagsInBlock selectedTags) as |tag tagIndex|}}
           {{#if tag.isNew}}
-            <span class="tag" style="border-color: {{tag.colour}}" >
-              {{tag.name}}
-              <button class="tag-btn delete-tag-btn" {{action "deleteTag" tag}} disabled={{interactionDisabled}}>
-                {{fa-icon "times" fixedWidth=true}}
-              </button>
+            <span class="tag">
+              <span class="text-container {{unless interactionDisabled "rounded-borders"}}" style="background-color:{{tag.colour}}; color: {{tag.font_color}}">
+                  {{tag.name}}
+              </span>
+                {{#if (not interactionDisabled)}}
+                  <span class="remove-icon-container" {{action "deleteTag" tag}}>
+                    {{fa-icon "times" class="tag-close-icon" fixedWidth=true}}
+                  </span>
+                {{/if}}
             </span>
           {{else}}
-            <a href="{{details.url}}/events/index/searchtag:{{tag.id}}" class="tag" style="border-color: {{tag.colour}}" >
-              {{tag.name}}
-              <button class="tag-btn delete-tag-btn" {{action "deleteTag" tag}} disabled={{interactionDisabled}}>
-                {{fa-icon "times" fixedWidth=true}}
-              </button>
+            <a href="{{details.url}}/events/index/searchtag:{{tag.id}}" class="tag">
+              <span class="text-container {{unless interactionDisabled "rounded-borders"}}" style="background-color:{{tag.colour}}; color: {{tag.font_color}}">
+                  {{tag.name}}
+              </span>
+                {{#if (not interactionDisabled)}}
+                  <span class="remove-icon-container" {{action "deleteTag" tag}}>
+                    {{fa-icon "times" class="tag-close-icon" fixedWidth=true}}
+                  </span>
+                {{/if}}
             </a>
           {{/if}}
         {{/each}}
-
-        <div class="edit-tags-btn-container">
-          <span class="p-action" {{action "editTags"}}>Add Tags {{fa-icon (if editingTags "caret-up" "caret-down") fixedWidth=true}}</span>
-        </div>
+        {{#unless (or editingTags interactionDisabled)}}
+          <button class="open-modal-btn" {{action "editTags"}}>
+            {{fa-icon "plus" class="open-modal-btn-icon" fixedWidth=true}}
+          </button>
+        {{/unless}}
 
         {{#if editingTags}}
-          <div class="edit-tags-container">
-            <div class="input-group add-tag-container">
-              {{#power-select
+          <div class="show-tag-modal">
+            <div>
+              {{#power-select-multiple
                 triggerClass="form-control"
                 selected=selectedTag
                 options=existingTags
@@ -233,19 +242,22 @@
                 onOpen=(action "searchTags" "")
                 onChange=(action (mut selectedTag)) as |tag|
               }}
-                {{tag.name}}
-                {{#if tag.isNew}}
+                <span 
+                  class="p-tag" 
+                  style="word-break: break-word; margin: 0; display:inline-block; line-height: 1.2em; font-size: 12px; box-shadow: 3px 3px 3px #888888; padding: 4px; border-radius: 4px; background-color:{{tag.colour}}; color: {{tag.font_color}}"
+                >
+                  {{tag.name}}
+                  {{#if tag.isNew}}
                     {{fa-icon "plus-circle" fixedWidth=true}}
-                {{else}}
+                  {{else}}
                     {{fa-icon "check-circle" fixedWidth=true}}
-                {{/if}}
-              {{/power-select}}
-
-              <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" {{action "addTag"}} disabled={{interactionDisabled}}>
-                  {{fa-icon "plus" fixedWidth=true}}
-                </button>
-              </div>
+                  {{/if}}
+                </span>
+              {{/power-select-multiple}}
+            </div>
+            <div class="modal-buttons">
+              <button class="misp-btn" {{action "editTags"}} disabled={{interactionDisabled}}>Cancel</button>
+              <button class="misp-btn" {{action "addTags"}} disabled={{interactionDisabled}}>Add Tags</button>
             </div>
           </div>
         {{/if}}

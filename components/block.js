@@ -18,7 +18,7 @@ polarity.export = PolarityComponent.extend({
   createMessage: '',
   createErrorMessage: '',
   createIsRunning: false,
-  selectedTag: '',
+  selectedTag: [],
   editingTags: false,
   interactionDisabled: Ember.computed('isDeleting', 'createIsRunning', function () {
     return this.get('isDeleting') || this.get('createIsRunning');
@@ -53,7 +53,11 @@ polarity.export = PolarityComponent.extend({
       .then(({ tags }) => {
         outerThis.set(
           'existingTags',
-          [...(term ? [{ name: term, colour: 'black', isNew: true }] : [])].concat(tags)
+          [
+            ...(term
+              ? [{ name: term, colour: '#5ecd1e', font_color: '#fff', isNew: true }]
+              : [])
+          ].concat(tags)
         );
       })
       .catch((err) => {
@@ -220,23 +224,26 @@ polarity.export = PolarityComponent.extend({
       );
     },
     searchTags: function (term) {
-      const outerThis = this;
       return new Ember.RSVP.Promise((resolve, reject) => {
         Ember.run.debounce(this, this.searchTags, term, resolve, reject, 600);
       });
     },
-    addTag: function () {
+    addTags: function (tags) {
       const selectedTag = this.get('selectedTag');
       const selectedTags = this.get('selectedTags');
 
-      let isDuplicate = selectedTags.find(
-        (tag) => tag.name.toLowerCase().trim() === selectedTag.name.toLowerCase().trim()
+      this.set('createMessage', '');
+
+      let newSelectedTags = selectedTag
+      .filter((tag) =>
+        !selectedTags.some(
+          (selectedTag) =>
+            tag.name.toLowerCase().trim() === selectedTag.name.toLowerCase().trim()
+        )
       );
 
-      if (!isDuplicate) {
-        this.set('selectedTags', selectedTags.concat(selectedTag));
-      }
-      this.set('selectedTag', '');
+      this.set('selectedTags', selectedTags.concat(newSelectedTags));
+      this.set('selectedTag', []);
     }
   }
 });

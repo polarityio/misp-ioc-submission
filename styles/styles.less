@@ -77,59 +77,122 @@ table {
   margin-top: -15px;
 }
 
-.delete-tag-btn {
-  background-color: transparent;
-  border: none;
-}
 
-.delete-tag-btn:hover {
-  color: #ff4559;
-}
 
-.edit-tags-btn-container {
-  margin-top: 10px;
-}
 
-.edit-tags-container {
-  margin-top: 10px;
-  margin-bottom: 10px;
+.tag {
+  border-radius: 4px;
+  display: inline-block;
+  line-height: 14px;
+  box-shadow: 3px 3px 3px #888888;
+  margin: 0 0 4px 0;
+  color: #fff;
+  background-color: #000;
+  padding: 0;
 
-  .add-tag-container {
-    margin-top: 10px;
+  .text-container {
+    padding: 3px 3px 3px 3px;
+    border-radius: 4px 0 0 4px;
+    display: inline-block;
+  }
+
+  .remove-icon-container {
+    border-radius: 0px 4px 4px 0px;
+    padding: 0 0px 0 0;
+    display: inline-block;
+    color: #fff;
+
+
+    .tag-close-icon {
+      font-size: 9px;
+    }
+
+    .tag-close-icon:hover {
+      color: #ff0000;
+    }
   }
 }
 
-.tag {
-  border: 2px solid #000;
-  color: #000 !important;
-  padding: 2px 0px 2px 5px;
-  display: inline-block;
-  margin: 2px 0;
-  word-break: break-all;
-}
-
-a.tag:hover {
+a.tag > .text-container:hover {
   color: #0082bc !important;
 }
 
-.tag.tlp-red {
-  border: 2px solid #ff4559;
-  color: #ff4559;
+.open-modal-btn{
+  border-radius: 4px;
+  background-color: #363636;
+  color: #fff;
+
+  &:hover,
+  &:focus {
+    background: inherit;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:active {
+    transform: none;
+  }
+
+  .open-modal-btn-icon{
+    font-size: 9px;
+  }
 }
 
-div.tag-container {
-  padding-bottom: 5px;
+.open-modal-btn:hover{
+  background-color: darken(#363636, 10%);
 }
 
-div.item:last-child {
-  border-bottom: none;
+.show-tag-modal {
+  overflow: hidden;
+  margin-top: 10px;
+  background-color: #eee;
+  padding: 5px;
+  border-radius: 4px;
+
+  .modal-buttons{
+    float: right;
+    margin-top: 5px;
+  }
+  .ember-power-select-multiple-option {
+    margin: 0 2px 2px 0;
+    word-break: break-word;
+
+    .p-tag{
+      margin: 0 !important;
+    }
+  }
+
+  .ember-power-select-trigger {
+    padding: 2px 30px 0 2px;
+    line-height: 30px;
+    min-height: 30px;
+    white-space: normal;
+  }
+
+  .ember-power-select-trigger-multiple-input {
+    max-width: 100%;
+  }
 }
 
-div.additional-sources-count {
-  text-align: right;
-  padding-right: 5px;
+.misp-btn{
+  border-radius: 4px;
+  background-color: #363636;
+  color: #fff;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:active {
+    transform: none;
+  }
 }
 
+.misp-btn:hover{
+  background-color: darken(#363636, 10%);
+}
 .p-btn {
   height: 30px;
   font-size: 12px !important;

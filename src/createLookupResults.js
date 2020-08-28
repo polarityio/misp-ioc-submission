@@ -29,7 +29,11 @@ const createLookupResults = (
           url: options.url,
           entitiesThatExistInMISP,
           notFoundEntities,
-          polarityTag: polarityTag && { ...polarityTag, colour: '#5ecd1e' }
+          polarityTag: polarityTag && {
+            ...polarityTag,
+            colour: '#5ecd1e',
+            font_color: '#fff'
+          }
         }
       }
     }
