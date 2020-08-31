@@ -77,9 +77,6 @@ table {
   margin-top: -15px;
 }
 
-
-
-
 .tag {
   border-radius: 4px;
   display: inline-block;
@@ -104,7 +101,6 @@ table {
     color: #fff;
     flex: 0 0 10px;
 
-
     .tag-close-icon {
       font-size: 9px;
     }
@@ -113,13 +109,21 @@ table {
       color: #ff0000;
     }
   }
+
+  .external-link-tag{
+    font-size: 9px;
+    margin-bottom: 1px;
+    margin-right: 2px;
+  }
 }
 
-a.tag > .text-container:hover {
-  color: #0082bc !important;
+a.tag {
+  .text-container:hover{
+    text-decoration: underline;
+  }
 }
 
-.open-modal-btn{
+.open-modal-btn {
   border-radius: 4px;
   background-color: #363636;
   color: #fff;
@@ -137,12 +141,12 @@ a.tag > .text-container:hover {
     transform: none;
   }
 
-  .open-modal-btn-icon{
+  .open-modal-btn-icon {
     font-size: 9px;
   }
 }
 
-.open-modal-btn:hover{
+.open-modal-btn:hover {
   background-color: darken(#363636, 10%);
 }
 
@@ -153,7 +157,7 @@ a.tag > .text-container:hover {
   padding: 5px;
   border-radius: 4px;
 
-  .modal-buttons{
+  .modal-buttons {
     float: right;
     margin-top: 5px;
   }
@@ -161,7 +165,7 @@ a.tag > .text-container:hover {
     margin: 0 2px 2px 0;
     word-break: break-word;
 
-    .p-tag{
+    .p-tag {
       margin: 0 !important;
     }
   }
@@ -178,7 +182,7 @@ a.tag > .text-container:hover {
   }
 }
 
-.misp-btn{
+.misp-btn {
   border-radius: 4px;
   background-color: #363636;
   color: #fff;
@@ -192,7 +196,7 @@ a.tag > .text-container:hover {
   }
 }
 
-.misp-btn:hover{
+.misp-btn:hover {
   background-color: darken(#363636, 10%);
 }
 .p-btn {
