@@ -20,7 +20,7 @@ https://my-misp-server.internal
 
 ### Authentication Key
 
-'You MISP authentication key. If you have access to an authentication key, you can find it under "Event Actions" -> "Automation" in the MISP web interface.',
+You MISP authentication key. If you have access to an authentication key, you can find it under "Event Actions" -> "Automation" in the MISP web interface.
 
 ### Allow IOC Deletion
 
