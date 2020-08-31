@@ -55,7 +55,7 @@ module.exports = {
       key: 'apiKey',
       name: 'Authentication Key',
       description:
-        'The authentication of the automation is performed via a secure key available in the MISP UI interface. Make sure you keep that key secret as it gives access to the entire database!',
+        'You MISP authentication key. If you have access to an authentication key, you can find it under "Event Actions" -> "Automation" in the MISP web interface.',
       default: '',
       type: 'password',
       userCanEdit: true,
@@ -64,7 +64,7 @@ module.exports = {
     {
       key: 'allowDelete',
       name: 'Allow IOC Deletion',
-      description: 'If checked, users will be able to delete an Attribute from MISP.',
+      description: 'If checked, users will be able to delete attributes from MISP.',
       default: false,
       type: 'boolean',
       userCanEdit: true,
