@@ -2,6 +2,7 @@ const fp = require('lodash/fp');
 
 const { _P, partitionFlatMap, splitOutIgnoredIps } = require('./dataTransformations');
 const createLookupResults = require('./createLookupResults');
+const MAX_EVENTS_PER_ATTRIBUTE = 10;
 
 const getLookupResults = (
   entities,
@@ -14,37 +15,50 @@ const getLookupResults = (
       const { entitiesPartition, ignoredIpLookupResults } = splitOutIgnoredIps(
         _entitiesPartition
       );
+      const entitiesThatExistInMISP = fp.flatten(
+        await Promise.all(
+          fp.map(async (entity) => {
+            const searchResponse = await requestWithDefaults({
+              url: `${options.url}/attributes/restSearch`,
+              method: 'POST',
+              headers: {
+                Authorization: options.apiKey,
+                Accept: 'application/json',
+                'Content-type': 'application/json'
+              },
+              body: JSON.stringify({
+                value: entity.value.toLowerCase(),
+                limit: MAX_EVENTS_PER_ATTRIBUTE,
+                includeEventTags: true
+              })
+            });
 
-      const entitiesThatExistInTS = await partitionFlatMap(
-        async (entities) =>
-          fp.getOr(
-            [],
-            'body',
-            await requestWithDefaults({
-              // query to get found entities
-            })
-          ),
-        5,
-        entitiesPartition
+            return fp.getOr([], 'body.response.Attribute', searchResponse);
+          }, entitiesPartition)
+        )
       );
-
-      const orgTags = fp.flow(
-        fp.getOr([], 'body'),
-        fp.map(fp.get('name'))
-      )(
+      
+      const polarityTag = fp.get(
+        'body.Tag[0]',
         await requestWithDefaults({
-          // get tags
+          url: `${options.url}/tags/index/searchall:polarity`,
+          method: 'GET',
+          headers: {
+            Authorization: options.apiKey,
+            Accept: 'application/json',
+            'Content-type': 'application/json'
+          }
         })
       );
 
       const lookupResults = createLookupResults(
         options,
         entitiesPartition,
-        entitiesThatExistInTS,
-        orgTags
+        entitiesThatExistInMISP,
+        polarityTag
       );
 
-      Logger.trace({ lookupResults, entitiesThatExistInTS }, 'Lookup Results');
+      Logger.trace({ lookupResults, entitiesThatExistInMISP }, 'Lookup Results');
 
       return lookupResults.concat(ignoredIpLookupResults);
     },

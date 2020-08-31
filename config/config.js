@@ -3,8 +3,8 @@ module.exports = {
   acronym: 'MIS',
   description:
     'Malware Information and Sharing Platform (MISP) threat intelligence platform IOC Submission',
-  entityTypes: ['domain', 'IPv4', 'IPv6', 'hash'],
-  styles: ['./styles/misp.less'],
+  entityTypes: ['domain', 'IPv4', 'IPv6', 'hash', 'email'],
+  styles: ['./styles/styles.less'],
   block: {
     component: {
       file: './components/block.js'
@@ -38,11 +38,11 @@ module.exports = {
     rejectUnauthorized: true
   },
   logging: {
-    level: 'trace' //trace, debug, info, warn, error, fatal
+    level: 'info' //trace, debug, info, warn, error, fatal
   },
   options: [
     {
-      key: 'uri',
+      key: 'url',
       name: 'MISP URL',
       description:
         'URL of your MISP instance to include the schema (i.e., https://) and port if applicable',
@@ -54,30 +54,21 @@ module.exports = {
     {
       key: 'apiKey',
       name: 'Authentication Key',
-      description: 'Your MISP API key',
+      description:
+        'You MISP authentication key. If you have access to an authentication key, you can find it under "Event Actions" -> "Automation" in the MISP web interface.',
       default: '',
-      type: 'text',
+      type: 'password',
       userCanEdit: true,
       adminOnly: false
     },
     {
-      key: 'enableAddingTags',
-      name: 'Enable Adding Tags',
-      description: 'If checked, users can add tags to an event from the Overlay Window',
-      default: true,
+      key: 'allowDelete',
+      name: 'Allow IOC Deletion',
+      description: 'If checked, users will be able to delete attributes from MISP.',
+      default: false,
       type: 'boolean',
-      userCanEdit: false,
-      adminOnly: true
-    },
-    {
-      key: 'enableRemovingTags',
-      name: 'Enable Removing Tags',
-      description:
-        'If checked, users can remove tags from an event from the Overlay Window',
-      default: true,
-      type: 'boolean',
-      userCanEdit: false,
-      adminOnly: true
+      userCanEdit: true,
+      adminOnly: false
     }
   ]
 };
