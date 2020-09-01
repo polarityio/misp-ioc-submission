@@ -1,7 +1,12 @@
 # Polarity MISP Integration
 
-The Polarity MISP integration allows Polarity to search your instance of MISP to return valid information about domains, IPs, and hashes.  The integration also allows you to add and remove IOC in bulk.
+The Polarity MISP integration allows Polarity to search your instance of MISP to return found domains, IPs, hashes, and emails.  The integration also allows you to Create and Delete attributes (IOCs) in bulk from MISP.
 
+> ***NOTE***: Attribute creation will create a new event containing all Attributes submitted.
+
+<div>
+  <img width="400" alt="Integration Example" src="./assets/integration-example.png">
+</div>
 
 ## MISP Integration Options
 
@@ -13,22 +18,15 @@ URL of your MISP instance to include the schema (i.e., https://) and port if app
 https://my-misp-server.internal
 ```
 
-### API Key
+### Authentication Key
 
-The authentication of the automation is performed via a secure key available in the MISP UI interface. Make sure you keep that key secret as it gives access to the entire database! The API key is available in the event actions menu under automation
+You MISP authentication key. If you have access to an authentication key, you can find it under "Event Actions" -> "Automation" in the MISP web interface.
 
-### Enable Adding Tags
+### Allow IOC Deletion
 
-If checked, users can add tags to an event from the Overlay Window
+If checked, users will be able to delete an Attribute from MISP. (this setting must be set to `User can view only`).
 
-> Note that we recommend setting this option as an admin only option so the value is consistent across all your users.
-
-### Enable Removing Tags
-
-If checked, users can remove tags from an event from the Overlay Window
-
-> Note that we recommend setting this option as an admin only option so the value is consistent across all your users.
-
+> ***NOTE***: When you delete an Attribute you are doing a soft delete of the Attribute from the entire system, but will not delete Events containing those attributes.
 
 ## Installation Instructions
 

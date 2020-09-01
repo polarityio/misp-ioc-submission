@@ -1,6 +1,5 @@
 const _ = require("lodash");
 const Aigle = require("aigle");
-const moment = require('moment');
 
 const { IGNORED_IPS } = require('./constants');
 
@@ -52,20 +51,6 @@ const splitOutIgnoredIps = (_entitiesPartition) => {
   };
 };
 
-const generateTimes = ({ monthsBack }, queryingEvents = false) => {
-  const monthsBackDateTime =
-    moment
-      .utc()
-      .subtract(Math.floor(Math.abs(monthsBack)), 'months')
-      .subtract((Math.abs(monthsBack) % 1) * 30.41, 'days')
-      .format('YYYY-MM-DDTHH:mm:ss') + 'Z';
-
-  return {
-    start_time: monthsBackDateTime,
-    end_time: moment.utc().format('YYYY-MM-DDTHH:mm:ss') + 'Z',
-    ...(queryingEvents && { reference_time: monthsBackDateTime })
-  };
-};
 
 
 module.exports = {
@@ -73,6 +58,5 @@ module.exports = {
   partitionFlatMap,
   getKeys,
   groupEntities,
-  splitOutIgnoredIps,
-  generateTimes
+  splitOutIgnoredIps
 };
