@@ -1,12 +1,12 @@
 polarity.export = PolarityComponent.extend({
   details: Ember.computed.alias('block.data.details'),
-  entitiesThatExistInMISP: Ember.computed.alias('details.entitiesThatExistInMISP'),
-  notFoundEntities: Ember.computed.alias('details.notFoundEntities'),
+  maxUniqueKeyNumber: Ember.computed.alias('details.maxUniqueKeyNumber'),
   shouldPublish: false,
   distribution: 0,
   threatLevel: 1,
   analysis: 0,
-  eventInfo: 'Polarity Bulk Attribute Creation',
+  eventInfo: '',
+  entitiesThatExistInMISP: [],
   newIocs: [],
   newIocsToSubmit: [],
   selectedTags: [],
@@ -24,18 +24,41 @@ polarity.export = PolarityComponent.extend({
     return this.get('isDeleting') || this.get('createIsRunning');
   }),
   init() {
-    this.set('newIocs', this.get('notFoundEntities').slice(1));
-    this.set('newIocsToSubmit', this.get('notFoundEntities').slice(0, 1));
+    this.set(
+      'newIocs',
+      this.get(`details.notFoundEntities${this.get('maxUniqueKeyNumber')}`)
+    );
 
+    this.set(
+      'entitiesThatExistInMISP',
+      this.get(`details.entitiesThatExistInMISP${this.get('maxUniqueKeyNumber')}`)
+    );
     this.set('selectedTags', [
       this.get('details.polarityTag') || {
-        name: 'Polarity',
+        name: 'Submitted_By_Polarity',
         colour: '#5ecd1e',
         isNew: true
       }
     ]);
     this._super(...arguments);
   },
+  observer: Ember.on(
+    'willUpdate',
+    Ember.observer('details.maxUniqueKeyNumber', function () {
+      if (this.get('maxUniqueKeyNumber') !== this.get('_maxUniqueKeyNumber')) {
+        this.set('_maxUniqueKeyNumber', this.get('maxUniqueKeyNumber'));
+        this.set(
+          'newIocs',
+          this.get(`details.notFoundEntities${this.get('maxUniqueKeyNumber')}`)
+        );
+        this.set(
+          'entitiesThatExistInMISP',
+          this.get(`details.entitiesThatExistInMISP${this.get('maxUniqueKeyNumber')}`)
+        );
+        this.set('newIocsToSubmit', []);
+      }
+    })
+  ),
   searchTags: function (term, resolve, reject) {
     const outerThis = this;
     outerThis.set('createMessage', '');
@@ -152,6 +175,10 @@ polarity.export = PolarityComponent.extend({
         {
           condition: () => !outerThis.get('newIocsToSubmit').length,
           message: 'No Items to Submit...'
+        },
+        {
+          condition: () => !outerThis.get('eventInfo'),
+          message: 'Event Name Required...'
         }
       ];
 
@@ -234,12 +261,12 @@ polarity.export = PolarityComponent.extend({
 
       this.set('createMessage', '');
 
-      let newSelectedTags = selectedTag
-      .filter((tag) =>
-        !selectedTags.some(
-          (selectedTag) =>
-            tag.name.toLowerCase().trim() === selectedTag.name.toLowerCase().trim()
-        )
+      let newSelectedTags = selectedTag.filter(
+        (tag) =>
+          !selectedTags.some(
+            (selectedTag) =>
+              tag.name.toLowerCase().trim() === selectedTag.name.toLowerCase().trim()
+          )
       );
 
       this.set('selectedTags', selectedTags.concat(newSelectedTags));

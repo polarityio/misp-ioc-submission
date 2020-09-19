@@ -1,6 +1,6 @@
 module.exports = {
   name: 'MISP IOC Submission',
-  acronym: 'MIS',
+  acronym: 'MISP+',
   description:
     'Malware Information and Sharing Platform (MISP) threat intelligence platform IOC Submission',
   entityTypes: ['domain', 'IPv4', 'IPv6', 'hash', 'email'],
@@ -11,6 +11,14 @@ module.exports = {
     },
     template: {
       file: './templates/block.hbs'
+    }
+  },
+  summary: {
+    component: {
+      file: './components/summary.js'
+    },
+    template: {
+      file: './templates/summary.hbs'
     }
   },
   onDemandOnly: true,

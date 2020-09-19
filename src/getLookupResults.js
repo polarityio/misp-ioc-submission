@@ -41,7 +41,7 @@ const getLookupResults = (
       const polarityTag = fp.get(
         'body.Tag[0]',
         await requestWithDefaults({
-          url: `${options.url}/tags/index/searchall:polarity`,
+          url: `${options.url}/tags/index/searchall:Submitted_By_Polarity`,
           method: 'GET',
           headers: {
             Authorization: options.apiKey,

@@ -1,6 +1,6 @@
 {{#if entitiesThatExistInMISP.length}}
   <h1 class="p-title">
-    {{fa-icon "info-circle" size="sm"}} Found IOCs
+    {{fa-icon "info-circle" size="sm"}} Already In MISP
   </h1>
   {{#if isDeleting}}
     <div class="ioc-deletion-modal">
@@ -74,7 +74,7 @@
 
 {{#if (or newIocs.length newIocsToSubmit.length)}}
     <h1 class="p-title">
-      {{fa-icon "sparkles" size="sm" fixedWidth=true}} New IOCs
+      {{fa-icon "sparkles" size="sm" fixedWidth=true}} Not Currently In MISP
     </h1>
     <table class="w-100">
       <tbody>
@@ -107,7 +107,7 @@
     </div>
   {{/if}}
   <h1 class="p-title">
-    {{fa-icon "upload" size="sm" fixedWidth=true}} New IOCs to Submit
+    {{fa-icon "upload" size="sm" fixedWidth=true}} To Be Submitted to MISP
   </h1>
   <table class="w-100">
     <tbody>
@@ -182,6 +182,7 @@
         <input
           type="text"
           class="w-100"
+          placeholder="Polarity Upload Event Name"
           onchange={{action (mut eventInfo) value="target.value"}}
           value={{eventInfo}}
           disabled={{interactionDisabled}}
@@ -282,6 +283,6 @@
 <div class={{if (and (not (or newIocs.length newIocsToSubmit.length)) interactionDisabled) "modal-open"}}></div>
 {{#if (and (not entitiesThatExistInMISP.length) (not (or newIocs.length newIocsToSubmit.length)))}}
   <div class="note">
-    <span class="p-key"><em>All Found IOCs have been deleted</em></span>
+    <span class="p-key"><em>All Already In MISP IOCs have been deleted</em></span>
   </div>
 {{/if}}

@@ -1,6 +1,8 @@
 const fp = require('lodash/fp');
 const { ENTITY_TYPES } = require('./constants');
 
+let maxUniqueKeyNumber = 0;
+
 const createLookupResults = (
   options,
   entities,
@@ -15,25 +17,32 @@ const createLookupResults = (
   )(_entitiesThatExistInMISP);
 
   const notFoundEntities = getNotFoundEntities(entitiesThatExistInMISP, entities);
+  const summary = [
+    ...(entitiesThatExistInMISP.length ? ['Entities Found'] : []),
+    ...(notFoundEntities.length ? ['New Entites'] : [])
+  ];
+  maxUniqueKeyNumber++
 
   return [
     {
-      entity: { ...entities[0], value: 'MISP IOC Submission' },
+      entity: {
+        ...entities[0],
+        value: 'MISP IOC Submission'
+      },
       isVolatile: true,
       data: {
-        summary: [
-          ...(entitiesThatExistInMISP.length ? ['Entities Found'] : []),
-          ...(notFoundEntities.length ? ['New Entites'] : [])
-        ],
+        summary,
         details: {
           url: options.url,
-          entitiesThatExistInMISP,
-          notFoundEntities,
           polarityTag: polarityTag && {
             ...polarityTag,
             colour: '#5ecd1e',
             font_color: '#fff'
-          }
+          },
+          maxUniqueKeyNumber,
+          [`summary${maxUniqueKeyNumber}`]: summary,
+          [`entitiesThatExistInMISP${maxUniqueKeyNumber}`]: entitiesThatExistInMISP,
+          [`notFoundEntities${maxUniqueKeyNumber}`]: notFoundEntities
         }
       }
     }
