@@ -5,6 +5,15 @@
 
 .p-title {
   font-weight: 600;
+  padding-top: 3px !important;
+  &:first-child {
+    margin-top: 5px !important;
+  }
+  &.submission-options{
+    margin-top: 15px !important;
+  }
+  height: 15px !important;
+  min-height: 15px !important;
 }
 
 .p-value {
@@ -65,6 +74,7 @@ table {
 
 .selectContainer {
   display: flex;
+  align-items: center;
   padding-top: 2px;
   padding-bottom: 10px;
 
@@ -74,7 +84,7 @@ table {
 }
 
 .tag-container {
-  margin-top: -15px;
+  margin-top: -7px;
 }
 
 .tag {
@@ -207,17 +217,17 @@ a.tag {
 }
 
 .modal-open {
-  min-height: 115px;
+  min-height: 157px;
 }
 
-.ioc-deletion-modal {
+.ioc-deletion-modal, .default-category-type-modal {
   position: absolute;
   background: #ededed;
   border: #cdcdcd 1px solid;
   top: 30px;
   left: 30px;
   width: calc(100% - 60px);
-  z-index: 1;
+  z-index: 9999999 !important;
   padding-top: 6px;
   padding-bottom: 0px;
   padding-right: 8px;
@@ -231,15 +241,45 @@ a.tag {
     }
   }
 
-  .delete-confirmation-button {
+  .delete-confirmation-button, .ok-button-container {
     padding-top: 6px;
     display: flex;
     justify-content: flex-end;
 
-    .cancel-delete {
+    .cancel-delete, .ok-button {
       margin-right: 8px;
       background-color: white;
       border-radius: 2px;
     }
+    .ok-button {
+      font-weight: 600;
+      background-color: white;
+      padding-top:6px;
+      padding-bottom:6px;
+      padding-left:15px;
+      padding-right:15px;
+      border-radius: 3px;
+    }
   }
+}
+
+.default-category-type-modal {
+  bottom: 30px;
+  top:auto;
+  .p-value {
+    color:  #5CCD18 !important;
+  }
+}
+
+.dropdown {
+  color:  #5CCD18 !important;
+  .text {
+    padding-left: 5px;
+    color:  #5CCD18 !important;
+  }
+}
+
+.type-list-title {
+  padding-top: 7px;
+  padding-bottom: 4px;
 }
