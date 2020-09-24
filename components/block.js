@@ -230,6 +230,24 @@ polarity.export = PolarityComponent.extend({
           }, 5000);
         });
     },
+    removeAllSubmitItems: function () {
+      const allIOCs = this.get('newIocs').concat(this.get('newIocsToSubmit'));
+
+      this.set('newIocs', allIOCs);
+      this.set('newIocsToSubmit', []);
+
+      this.updateCategorySubmitDisabled([]);
+      this.get('block').notifyPropertyChange('data');
+    },
+    addAllSubmitItems: function () {
+      const allIOCs = this.get('newIocs').concat(this.get('newIocsToSubmit'));
+
+      this.set('newIocs', []);
+      this.set('newIocsToSubmit', allIOCs);
+
+      this.updateCategorySubmitDisabled(allIOCs);
+      this.get('block').notifyPropertyChange('data');
+    },
     removeSubmitItem: function (entity) {
       this.set('newIocs', this.get('newIocs').concat(entity));
 

@@ -9,7 +9,7 @@
   &:first-child {
     margin-top: 5px !important;
   }
-  &.submission-options{
+  &.submission-options {
     margin-top: 15px !important;
   }
   height: 15px !important;
@@ -40,6 +40,7 @@ table {
   font-family: inherit;
   border: 0;
   padding: 0;
+  background-color: transparent;
 
   &:hover,
   &:focus {
@@ -120,7 +121,7 @@ table {
     }
   }
 
-  .external-link-tag{
+  .external-link-tag {
     font-size: 9px;
     margin-bottom: 1px;
     margin-right: 2px;
@@ -128,7 +129,7 @@ table {
 }
 
 a.tag {
-  .text-container:hover{
+  .text-container:hover {
     text-decoration: underline;
   }
 }
@@ -220,7 +221,8 @@ a.tag {
   min-height: 157px;
 }
 
-.ioc-deletion-modal, .default-category-type-modal {
+.ioc-deletion-modal,
+.default-category-type-modal {
   position: absolute;
   background: #ededed;
   border: #cdcdcd 1px solid;
@@ -241,12 +243,14 @@ a.tag {
     }
   }
 
-  .delete-confirmation-button, .ok-button-container {
+  .delete-confirmation-button,
+  .ok-button-container {
     padding-top: 6px;
     display: flex;
     justify-content: flex-end;
 
-    .cancel-delete, .ok-button {
+    .cancel-delete,
+    .ok-button {
       margin-right: 8px;
       background-color: white;
       border-radius: 2px;
@@ -254,10 +258,10 @@ a.tag {
     .ok-button {
       font-weight: 600;
       background-color: white;
-      padding-top:6px;
-      padding-bottom:6px;
-      padding-left:15px;
-      padding-right:15px;
+      padding-top: 6px;
+      padding-bottom: 6px;
+      padding-left: 15px;
+      padding-right: 15px;
       border-radius: 3px;
     }
   }
@@ -265,21 +269,34 @@ a.tag {
 
 .default-category-type-modal {
   bottom: 30px;
-  top:auto;
+  top: auto;
   .p-value {
-    color:  #5CCD18 !important;
+    color: #5ccd18 !important;
   }
 }
 
 .dropdown {
-  color:  #5CCD18 !important;
+  color: #5ccd18 !important;
   .text {
     padding-left: 5px;
-    color:  #5CCD18 !important;
+    color: #5ccd18 !important;
   }
 }
 
 .type-list-title {
   padding-top: 7px;
   padding-bottom: 4px;
+}
+
+.title-with-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  & > button {
+    color: #5ccd18 !important; 
+    padding-right: 5px;
+    font-size: 12px
+  }
 }

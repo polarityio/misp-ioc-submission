@@ -74,9 +74,21 @@
   {{/if}}
 
   {{#if (or newIocs.length newIocsToSubmit.length)}}
-      <h1 class="p-title">
-        {{fa-icon "sparkles" size="sm" fixedWidth=true}} Not Currently In MISP
-      </h1>
+      <div class="title-with-button">
+        <h1 class="p-title">
+          {{fa-icon "sparkles" size="sm" fixedWidth=true}} Not Currently In MISP
+        </h1>
+        {{#if newIocs.length}}
+          <button
+            class="no-style-button add"
+            {{action "addAllSubmitItems"}}
+            title="Add all IOCs to submission list"
+            disabled={{interactionDisabled}}
+          >
+            Add All
+          </button>
+        {{/if}}
+      </div>
       <table class="w-100">
         <tbody>
           {{#each newIocs as |entity|}}
@@ -107,9 +119,21 @@
         <span class="p-key"><em>NONE</em></span>
       </div>
     {{/if}}
-    <h1 class="p-title">
-      {{fa-icon "upload" size="sm" fixedWidth=true}} To Be Submitted to MISP
-    </h1>
+    <div class="title-with-button">
+      <h1 class="p-title">
+        {{fa-icon "upload" size="sm" fixedWidth=true}} To Be Submitted to MISP
+      </h1>
+      {{#if newIocsToSubmit.length}}
+        <button
+          class="no-style-button remove"
+          title="Remove all IOCs from submission list"
+          {{action "removeAllSubmitItems"}}
+          disabled={{interactionDisabled}}
+        >
+          Remove All
+        </button>
+      {{/if}}
+    </div>
     <table class="w-100">
       <tbody>
         {{#each newIocsToSubmit as |entity|}}
@@ -236,7 +260,7 @@
                   Due to selecting more than one entity type to submit, 
                   we must set the Category and Type automatically based on the entity type.
                   The default Category is "Network activity" and this Category
-                  has corresponding Types that can automatically assigned, as not all other Categories can.
+                  has corresponding Types that can be automatically assigned, as not all other Categories can.
                   <div class="type-list-title">The default Types being assigned are:</div>
                   <div><b>domain</b>: domain</div>
                   <div><b>ip</b>: ip-src</div>
