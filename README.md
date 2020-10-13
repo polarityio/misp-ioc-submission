@@ -5,7 +5,7 @@ The Polarity MISP integration allows Polarity to search your instance of MISP to
 > ***NOTE***: Attribute creation will create a new event containing all Attributes submitted.
 
 <div>
-  <img width="400" alt="Integration Example" src="./assets/integration-example.png">
+  <img width="350px" alt="Integration Example" src="./assets/integration-example.png">
 </div>
 
 ## MISP Integration Options

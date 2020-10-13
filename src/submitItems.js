@@ -7,10 +7,12 @@ const submitItems = async (
     newIocsToSubmit,
     previousEntitiesInMISP,
     shouldPublish,
+    eventInfo,
     distribution,
     threatLevel,
     analysis,
-    eventInfo,
+    attributeCategory,
+    attributeType,
     submitTags
   },
   requestWithDefaults,
@@ -25,6 +27,8 @@ const submitItems = async (
       shouldPublish,
       analysis,
       distribution,
+      attributeCategory,
+      attributeType,
       newIocsToSubmit,
       options,
       requestWithDefaults
@@ -54,6 +58,8 @@ const createAttributes = async (
   shouldPublish,
   analysis,
   distribution,
+  attributeCategory,
+  attributeType,
   newIocsToSubmit,
   options,
   requestWithDefaults
@@ -73,7 +79,11 @@ const createAttributes = async (
         published: shouldPublish,
         analysis,
         distribution,
-        Attribute: buildAttributes(newIocsToSubmit)
+        Attribute: buildAttributes(
+          distribution,
+          attributeCategory,
+          attributeType
+        )(newIocsToSubmit)
       }
     })
   });
@@ -86,14 +96,15 @@ const createAttributes = async (
   }))(createdAttributes);
 };
 
-const buildAttributes = fp.map(({ type, value }) => ({
-  type: ATTIBUTE_TYPES[type] || 'other',
-  category: 'Network activity',
-  to_ids: false,
-  distribution: '5',
-  comment: '',
-  value
-}));
+const buildAttributes = (distribution, attributeCategory, attributeType) =>
+  fp.map(({ type, value }) => ({
+    category: attributeCategory || 'Network activity',
+    type: attributeType || ATTIBUTE_TYPES[type] || 'other',
+    to_ids: false,
+    distribution,
+    comment: '',
+    value
+  }));
 
 const createTags = (createdAttributes, submitTags, options, requestWithDefaults) =>
   Promise.all(
@@ -109,7 +120,7 @@ const createTags = (createdAttributes, submitTags, options, requestWithDefaults)
               Accept: 'application/json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ uuid, tag: id || fp.trim(name)})
+            body: JSON.stringify({ uuid, tag: id || fp.trim(name) })
           })
         )(submitTags)
       )

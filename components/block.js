@@ -1,12 +1,15 @@
 polarity.export = PolarityComponent.extend({
   details: Ember.computed.alias('block.data.details'),
-  entitiesThatExistInMISP: Ember.computed.alias('details.entitiesThatExistInMISP'),
-  notFoundEntities: Ember.computed.alias('details.notFoundEntities'),
-  shouldPublish: false,
+  categoriesAndTypes: Ember.computed.alias('details.categoriesAndTypes'),
+  maxUniqueKeyNumber: Ember.computed.alias('details.maxUniqueKeyNumber'),
+  attributeCategory: 'Network activity',
+  attributeType: 'ip-src',
+  eventInfo: '',
   distribution: 0,
   threatLevel: 1,
   analysis: 0,
-  eventInfo: 'Polarity Bulk Attribute Creation',
+  shouldPublish: false,
+  entitiesThatExistInMISP: [],
   newIocs: [],
   newIocsToSubmit: [],
   selectedTags: [],
@@ -14,28 +17,71 @@ polarity.export = PolarityComponent.extend({
   deleteErrorMessage: '',
   deleteIsRunning: false,
   isDeleting: false,
+  showCategorySubmitDisabledMessage: false,
   entityToDelete: {},
   createMessage: '',
   createErrorMessage: '',
   createIsRunning: false,
   selectedTag: [],
   editingTags: false,
+  categorySubmitDisabled: false,
   interactionDisabled: Ember.computed('isDeleting', 'createIsRunning', function () {
-    return this.get('isDeleting') || this.get('createIsRunning');
+    const interactionDisabled = this.get('isDeleting') || this.get('createIsRunning');
+
+    this.updateCategorySubmitDisabled(this.get('newIocsToSubmit'), interactionDisabled);
+
+    return interactionDisabled;
   }),
   init() {
-    this.set('newIocs', this.get('notFoundEntities').slice(1));
-    this.set('newIocsToSubmit', this.get('notFoundEntities').slice(0, 1));
+    this.set(
+      'newIocs',
+      this.get(`details.notFoundEntities${this.get('maxUniqueKeyNumber')}`)
+    );
+
+    this.set(
+      'entitiesThatExistInMISP',
+      this.get(`details.entitiesThatExistInMISP${this.get('maxUniqueKeyNumber')}`)
+    );
+
+    this.set(
+      'categoriesAndTypes',
+      Object.assign({}, this.get('categoriesAndTypes'), {
+        categories: this.get('categoriesAndTypes').categories.sort((category) =>
+          category === 'Network activity' ? -1 : 1
+        ),
+        types: this.get('categoriesAndTypes').category_type_mappings[
+          'Network activity'
+        ].sort((type) => (type === 'ip-src' ? -1 : 1))
+      })
+    );
 
     this.set('selectedTags', [
       this.get('details.polarityTag') || {
-        name: 'Polarity',
+        name: 'Submitted_By_Polarity',
         colour: '#5ecd1e',
         isNew: true
       }
     ]);
+
     this._super(...arguments);
   },
+  observer: Ember.on(
+    'willUpdate',
+    Ember.observer('details.maxUniqueKeyNumber', function () {
+      if (this.get('maxUniqueKeyNumber') !== this.get('_maxUniqueKeyNumber')) {
+        this.set('_maxUniqueKeyNumber', this.get('maxUniqueKeyNumber'));
+        this.set(
+          'newIocs',
+          this.get(`details.notFoundEntities${this.get('maxUniqueKeyNumber')}`)
+        );
+        this.set(
+          'entitiesThatExistInMISP',
+          this.get(`details.entitiesThatExistInMISP${this.get('maxUniqueKeyNumber')}`)
+        );
+        this.set('newIocsToSubmit', []);
+      }
+    })
+  ),
   searchTags: function (term, resolve, reject) {
     const outerThis = this;
     outerThis.set('createMessage', '');
@@ -55,7 +101,14 @@ polarity.export = PolarityComponent.extend({
           'existingTags',
           [
             ...(term
-              ? [{ name: term, colour: '#5ecd1e', font_color: '#fff', isNew: true }]
+              ? [
+                  {
+                    name: term,
+                    colour: '#5ecd1e',
+                    font_color: '#fff',
+                    isNew: true
+                  }
+                ]
               : [])
           ].concat(tags)
         );
@@ -79,7 +132,54 @@ polarity.export = PolarityComponent.extend({
         resolve();
       });
   },
+  updateCategorySubmitDisabled: function (newIocsToSubmit, interactionDisabled) {
+    const categorySubmitDisabled =
+      newIocsToSubmit.some(({ type }, i, self) =>
+        self.some(({ type: _type }) => type !== _type)
+      ) || interactionDisabled;
+
+    this.changeCategoryTypeToDefaultsAndBack(categorySubmitDisabled);
+
+    this.set('categorySubmitDisabled', categorySubmitDisabled);
+    this.get('block').notifyPropertyChange('data');
+  },
+  changeCategoryTypeToDefaultsAndBack: function (categorySubmitDisabled) {
+    if (!this.get('_categorySubmitDisabled') && categorySubmitDisabled) {
+      this.set('_categoriesAndTypes', this.get('categoriesAndTypes'));
+      this.set('_attributeCategory', this.get('attributeCategory'));
+      this.set('_attributeType', this.get('attributeType'));
+      this.set('_categorySubmitDisabled', categorySubmitDisabled);
+      this.get('block').notifyPropertyChange('data');
+
+      this.set('categoriesAndTypes', {
+        categories: ['Network activity'],
+        types: ['ip-src']
+      });
+      this.set('attributeCategory', '');
+      this.set('attributeType', '');
+    } else if (this.get('_categorySubmitDisabled') && !categorySubmitDisabled) {
+      this.set('_categorySubmitDisabled', categorySubmitDisabled);
+      this.set('categoriesAndTypes', this.get('_categoriesAndTypes'));
+      this.set('attributeCategory', this.get('_attributeCategory'));
+      this.set('attributeType', this.get('_attributeType'));
+    }
+  },
   actions: {
+    toggleCategorySubmitDisabledMessage: function () {
+      this.toggleProperty('showCategorySubmitDisabledMessage');
+    },
+    updateAttributeCategory: function (category) {
+      this.set('attributeCategory', category);
+      const categoriesAndTypes = this.get('categoriesAndTypes');
+      this.set(
+        'categoriesAndTypes',
+        Object.assign({}, categoriesAndTypes, {
+          types: categoriesAndTypes.category_type_mappings[category].sort((type) =>
+            type.includes('ip') ? -1 : 1
+          )
+        })
+      );
+    },
     initiateItemDeletion: function (entity) {
       this.set('isDeleting', true);
       this.set('entityToDelete', entity);
@@ -130,12 +230,33 @@ polarity.export = PolarityComponent.extend({
           }, 5000);
         });
     },
+    removeAllSubmitItems: function () {
+      const allIOCs = this.get('newIocs').concat(this.get('newIocsToSubmit'));
+
+      this.set('newIocs', allIOCs);
+      this.set('newIocsToSubmit', []);
+
+      this.updateCategorySubmitDisabled([]);
+      this.get('block').notifyPropertyChange('data');
+    },
+    addAllSubmitItems: function () {
+      const allIOCs = this.get('newIocs').concat(this.get('newIocsToSubmit'));
+
+      this.set('newIocs', []);
+      this.set('newIocsToSubmit', allIOCs);
+
+      this.updateCategorySubmitDisabled(allIOCs);
+      this.get('block').notifyPropertyChange('data');
+    },
     removeSubmitItem: function (entity) {
       this.set('newIocs', this.get('newIocs').concat(entity));
-      this.set(
-        'newIocsToSubmit',
-        this.get('newIocsToSubmit').filter(({ value }) => value !== entity.value)
+
+      const updatedNewIocsToSubmit = this.get('newIocsToSubmit').filter(
+        ({ value }) => value !== entity.value
       );
+      this.set('newIocsToSubmit', updatedNewIocsToSubmit);
+      this.updateCategorySubmitDisabled(updatedNewIocsToSubmit);
+
       this.get('block').notifyPropertyChange('data');
     },
     addSubmitItem: function (entity) {
@@ -143,7 +264,12 @@ polarity.export = PolarityComponent.extend({
         'newIocs',
         this.get('newIocs').filter(({ value }) => value !== entity.value)
       );
-      this.set('newIocsToSubmit', this.get('newIocsToSubmit').concat(entity));
+      const updatedNewIocsToSubmit = this.get('newIocsToSubmit').concat(entity);
+
+      this.set('newIocsToSubmit', updatedNewIocsToSubmit);
+
+      this.updateCategorySubmitDisabled(updatedNewIocsToSubmit);
+
       this.get('block').notifyPropertyChange('data');
     },
     submitItems: function () {
@@ -152,6 +278,10 @@ polarity.export = PolarityComponent.extend({
         {
           condition: () => !outerThis.get('newIocsToSubmit').length,
           message: 'No Items to Submit...'
+        },
+        {
+          condition: () => !outerThis.get('eventInfo'),
+          message: 'Event Name Required...'
         }
       ];
 
@@ -186,7 +316,9 @@ polarity.export = PolarityComponent.extend({
             threatLevel: outerThis.get('threatLevel'),
             analysis: outerThis.get('analysis'),
             eventInfo: outerThis.get('eventInfo'),
-            submitTags: outerThis.get('selectedTags')
+            submitTags: outerThis.get('selectedTags'),
+            attributeCategory: outerThis.get('attributeCategory'),
+            attributeType: outerThis.get('attributeType')
           }
         })
         .then(({ entitiesThatExistInMISP }) => {
@@ -234,12 +366,12 @@ polarity.export = PolarityComponent.extend({
 
       this.set('createMessage', '');
 
-      let newSelectedTags = selectedTag
-      .filter((tag) =>
-        !selectedTags.some(
-          (selectedTag) =>
-            tag.name.toLowerCase().trim() === selectedTag.name.toLowerCase().trim()
-        )
+      let newSelectedTags = selectedTag.filter(
+        (tag) =>
+          !selectedTags.some(
+            (selectedTag) =>
+              tag.name.toLowerCase().trim() === selectedTag.name.toLowerCase().trim()
+          )
       );
 
       this.set('selectedTags', selectedTags.concat(newSelectedTags));
