@@ -1,6 +1,6 @@
 const fp = require('lodash/fp');
 
-const { _P, partitionFlatMap, splitOutIgnoredIps } = require('./dataTransformations');
+const { partitionFlatMap, splitOutIgnoredIps } = require('./dataTransformations');
 const createLookupResults = require('./createLookupResults');
 const MAX_EVENTS_PER_ATTRIBUTE = 10;
 
@@ -41,7 +41,20 @@ const getLookupResults = (
       const polarityTag = fp.get(
         'body.Tag[0]',
         await requestWithDefaults({
-          url: `${options.url}/tags/index/searchall:polarity`,
+          url: `${options.url}/tags/index/searchall:Submitted_By_Polarity`,
+          method: 'GET',
+          headers: {
+            Authorization: options.apiKey,
+            Accept: 'application/json',
+            'Content-type': 'application/json'
+          }
+        })
+      );
+
+      const categoriesAndTypes = fp.get(
+        'body.result',
+        await requestWithDefaults({
+          url: `${options.url}/attributes/describeTypes`,
           method: 'GET',
           headers: {
             Authorization: options.apiKey,
@@ -55,7 +68,8 @@ const getLookupResults = (
         options,
         entitiesPartition,
         entitiesThatExistInMISP,
-        polarityTag
+        polarityTag,
+        categoriesAndTypes
       );
 
       Logger.trace({ lookupResults, entitiesThatExistInMISP }, 'Lookup Results');
