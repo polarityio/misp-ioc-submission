@@ -4,6 +4,7 @@ const validateOptions = require('./src/validateOptions');
 const createRequestWithDefaults = require('./src/createRequestWithDefaults');
 const submitItems = require('./src/submitItems');
 const searchTags = require('./src/searchTags');
+const searchEvents = require('./src/searchEvents');
 const deleteItem = require('./src/deleteItem');
 
 const { handleError } = require('./src/handleError');
@@ -49,6 +50,8 @@ const onMessage = async ({ data: { action, ...actionParams} }, options, callback
     submitItems(actionParams, requestWithDefaults, options, Logger, callback);
   } else if (action === 'searchTags') {
     searchTags(actionParams, requestWithDefaults, options, Logger, callback);
+  } else if (action === 'searchEvents') {
+    searchEvents(actionParams, requestWithDefaults, options, Logger, callback);
   } else {
     callback(null, {});
   }

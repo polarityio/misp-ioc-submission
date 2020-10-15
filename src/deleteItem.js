@@ -19,9 +19,14 @@ const deleteItem = async (
     });
   } catch (error) {
     Logger.error(error, 'Attribute Deletion Error');
-    return callback({
-      err: error,
-      detail: 'Failed to Delete Attribute in MISP'
+    return callback(
+      {
+      errors: [
+        {
+          err: error,
+          detail: 'MISP Deletion Error: ' + error
+        }
+      ]
     });
   }
 

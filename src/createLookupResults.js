@@ -14,7 +14,10 @@ const createLookupResults = (
     fp.filter(({ value }) =>
       fp.any(({ value: _value }) => fp.toLower(value) === fp.toLower(_value), entities)
     ),
-    fp.map((foundEntity) => ({ ...foundEntity, type: ENTITY_TYPES[foundEntity.type] }))
+    fp.map((foundEntity) => ({
+      ...foundEntity,
+      type: ENTITY_TYPES[foundEntity.type] || 'hash'
+    }))
   )(_entitiesThatExistInMISP);
 
   const notFoundEntities = getNotFoundEntities(entitiesThatExistInMISP, entities);
@@ -40,8 +43,8 @@ const createLookupResults = (
             colour: '#5ecd1e',
             font_color: '#fff'
           },
-          categoriesAndTypes,
           maxUniqueKeyNumber,
+          [`categoriesAndTypes${maxUniqueKeyNumber}`]: categoriesAndTypes,
           [`summary${maxUniqueKeyNumber}`]: summary,
           [`entitiesThatExistInMISP${maxUniqueKeyNumber}`]: entitiesThatExistInMISP,
           [`notFoundEntities${maxUniqueKeyNumber}`]: notFoundEntities

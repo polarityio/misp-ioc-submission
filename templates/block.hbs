@@ -171,50 +171,89 @@
           <label>
             {{input
               type="checkbox"
-              checked=shouldPublish
+              checked=submitNewEvent
               disabled=interactionDisabled
             }}
-            <span class="align-top">Should Publish</span>
+            <span class="align-top">New Event</span>
           </label>
         </div>
-        <div class="selectContainer">
-          <span class="p-value">Event Name: </span>
-          <input
-            type="text"
-            class="w-100"
-            placeholder="Polarity Upload Event Name"
-            onchange={{action (mut eventInfo) value="target.value"}}
-            value={{eventInfo}}
-            disabled={{interactionDisabled}}
-          />
-        </div>
+
+        
+        {{#if submitNewEvent}}
+          <div>
+            <label>
+              {{input
+                type="checkbox"
+                checked=shouldPublish
+                disabled=interactionDisabled
+              }}
+              <span class="align-top">Should Publish</span>
+            </label>
+          </div>
+
+          <div class="selectContainer">
+            <span class="p-value">Event Info: </span>
+            <input
+              type="text"
+              class="w-100"
+              placeholder="Polarity Upload Event Info"
+              onchange={{action (mut eventInfo) value="target.value"}}
+              value={{eventInfo}}
+              disabled={{interactionDisabled}}
+            />
+          </div>
+        {{else}}
+          <div class="selectContainer">
+            <span class="p-value">Event: </span>
+            {{#power-select
+              options=foundEvents
+              selected=selectedEvent
+              searchEnabled=true
+              searchField="info"
+              placeholder="Event Info"
+              triggerClass="form-control"
+              search=(action "searchEvents")
+              searchMessage="Loading Events ..."
+              loadingMessage="Loading Events ..."
+              searchPlaceholder="Search Events"
+              closeOnSelect=true
+              disabled=interactionDisabled
+              onOpen=(action "searchEvents" "")
+              onChange=(action (mut selectedEvent)) as |event|}}
+              <span>#{{event.id}} - {{event.info}}</span>
+            {{/power-select}}
+          </div>
+        {{/if}}
+        
         
         <div class="selectContainer pt-1">
           <span class="p-value">Distribution: </span>
           <select class="w-100" onchange={{action (mut distribution) value="target.value"}} disabled={{interactionDisabled}}>
-              <option value="0">Your organisation only</option>
+              <option value="0">Your organization only</option>
               <option value="1">This community only</option>
               <option value="2">Connected communities</option>
               <option value="3">All communities</option>
           </select>
         </div>
-        <div class="selectContainer">
-          <span class="p-value">Threat Level: </span>
-          <select class="w-100" onchange={{action (mut threatLevel) value="target.value"}} disabled={{interactionDisabled}}>
-              <option value="1">High</option>
-              <option value="2">Medium</option>
-              <option value="3">Low</option>
-              <option value="4">Undefined</option>
-          </select>
-        </div>
-        <div class="selectContainer">
-          <span class="p-value">Analysis: </span>
-          <select class="w-100" onchange={{action (mut analysis) value="target.value"}} disabled={{interactionDisabled}}>
-              <option value="0">Initial</option>
-              <option value="1">Ongoing</option>
-              <option value="2">Completed</option>
-          </select>
-        </div>
+        {{#if submitNewEvent}}
+          <div class="selectContainer">
+            <span class="p-value">Threat Level: </span>
+            <select class="w-100" onchange={{action (mut threatLevel) value="target.value"}} disabled={{interactionDisabled}}>
+                <option value="1">High</option>
+                <option value="2">Medium</option>
+                <option value="3">Low</option>
+                <option value="4">Undefined</option>
+            </select>
+          </div>
+          <div class="selectContainer">
+            <span class="p-value">Analysis: </span>
+            <select class="w-100" onchange={{action (mut analysis) value="target.value"}} disabled={{interactionDisabled}}>
+                <option value="0">Initial</option>
+                <option value="1">Ongoing</option>
+                <option value="2">Completed</option>
+            </select>
+          </div>
+        {{/if}}
         <div class="selectContainer pt-1">
           <span class="p-value">Category: </span>
           <select class="w-100" onchange={{action 'updateAttributeCategory' value="target.value"}} disabled={{categorySubmitDisabled}}>
