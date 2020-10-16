@@ -1,6 +1,5 @@
 polarity.export = PolarityComponent.extend({
   details: Ember.computed.alias('block.data.details'),
-  categoriesAndTypes: Ember.computed.alias('details.categoriesAndTypes'),
   maxUniqueKeyNumber: Ember.computed.alias('details.maxUniqueKeyNumber'),
   attributeCategory: 'Network activity',
   attributeType: 'ip-src',
@@ -9,10 +8,13 @@ polarity.export = PolarityComponent.extend({
   threatLevel: 1,
   analysis: 0,
   shouldPublish: false,
+  submitNewEvent: false,
+  categoriesAndTypes: {},
   entitiesThatExistInMISP: [],
   newIocs: [],
   newIocsToSubmit: [],
   selectedTags: [],
+  selectedEvent: '',
   deleteMessage: '',
   deleteErrorMessage: '',
   deleteIsRunning: false,
@@ -23,6 +25,7 @@ polarity.export = PolarityComponent.extend({
   createErrorMessage: '',
   createIsRunning: false,
   selectedTag: [],
+  foundEvents: [],
   editingTags: false,
   categorySubmitDisabled: false,
   interactionDisabled: Ember.computed('isDeleting', 'createIsRunning', function () {
@@ -43,13 +46,16 @@ polarity.export = PolarityComponent.extend({
       this.get(`details.entitiesThatExistInMISP${this.get('maxUniqueKeyNumber')}`)
     );
 
+    const categoriesAndTypes = this.get(
+      `details.categoriesAndTypes${this.get('maxUniqueKeyNumber')}`
+    );
     this.set(
       'categoriesAndTypes',
-      Object.assign({}, this.get('categoriesAndTypes'), {
-        categories: this.get('categoriesAndTypes').categories.sort((category) =>
+      Object.assign({}, categoriesAndTypes, {
+        categories: categoriesAndTypes.categories.sort((category) =>
           category === 'Network activity' ? -1 : 1
         ),
-        types: this.get('categoriesAndTypes').category_type_mappings[
+        types: categoriesAndTypes.category_type_mappings[
           'Network activity'
         ].sort((type) => (type === 'ip-src' ? -1 : 1))
       })
@@ -70,14 +76,32 @@ polarity.export = PolarityComponent.extend({
     Ember.observer('details.maxUniqueKeyNumber', function () {
       if (this.get('maxUniqueKeyNumber') !== this.get('_maxUniqueKeyNumber')) {
         this.set('_maxUniqueKeyNumber', this.get('maxUniqueKeyNumber'));
+
         this.set(
           'newIocs',
           this.get(`details.notFoundEntities${this.get('maxUniqueKeyNumber')}`)
         );
+
         this.set(
           'entitiesThatExistInMISP',
           this.get(`details.entitiesThatExistInMISP${this.get('maxUniqueKeyNumber')}`)
         );
+
+        const categoriesAndTypes = this.get(
+          `details.categoriesAndTypes${this.get('maxUniqueKeyNumber')}`
+        );
+        this.set(
+          'categoriesAndTypes',
+          Object.assign({}, categoriesAndTypes, {
+            categories: categoriesAndTypes.categories.sort((category) =>
+              category === 'Network activity' ? -1 : 1
+            ),
+            types: categoriesAndTypes.category_type_mappings[
+              'Network activity'
+            ].sort((type) => (type === 'ip-src' ? -1 : 1))
+          })
+        );
+
         this.set('newIocsToSubmit', []);
       }
     })
@@ -117,6 +141,42 @@ polarity.export = PolarityComponent.extend({
         outerThis.set(
           'createErrorMessage',
           'Search Tags Failed: ' +
+            (err &&
+              (err.detail || err.err || err.message || err.title || err.description)) ||
+            'Unknown Reason'
+        );
+      })
+      .finally(() => {
+        outerThis.get('block').notifyPropertyChange('data');
+        setTimeout(() => {
+          outerThis.set('createMessage', '');
+          outerThis.set('createErrorMessage', '');
+          outerThis.get('block').notifyPropertyChange('data');
+        }, 5000);
+        resolve();
+      });
+  },
+  searchEvents: function (term, resolve, reject) {
+    const outerThis = this;
+    outerThis.set('createMessage', '');
+    outerThis.set('createErrorMessage', '');
+    outerThis.get('block').notifyPropertyChange('data');
+
+    outerThis
+      .sendIntegrationMessage({
+        data: {
+          action: 'searchEvents',
+          selectedEvent: outerThis.get('selectedEvent'),
+          term
+        }
+      })
+      .then(({ events }) => {
+        outerThis.set('foundEvents', events);
+      })
+      .catch((err) => {
+        outerThis.set(
+          'createErrorMessage',
+          'Search Events Failed: ' +
             (err &&
               (err.detail || err.err || err.message || err.title || err.description)) ||
             'Unknown Reason'
@@ -280,8 +340,11 @@ polarity.export = PolarityComponent.extend({
           message: 'No Items to Submit...'
         },
         {
-          condition: () => !outerThis.get('eventInfo'),
-          message: 'Event Name Required...'
+          condition: () =>
+            outerThis.get('submitNewEvent')
+              ? !outerThis.get('eventInfo')
+              : !outerThis.get('selectedEvent'),
+          message: 'Event Info Required...'
         }
       ];
 
@@ -318,7 +381,9 @@ polarity.export = PolarityComponent.extend({
             eventInfo: outerThis.get('eventInfo'),
             submitTags: outerThis.get('selectedTags'),
             attributeCategory: outerThis.get('attributeCategory'),
-            attributeType: outerThis.get('attributeType')
+            attributeType: outerThis.get('attributeType'),
+            submitNewEvent: outerThis.get('submitNewEvent'),
+            selectedEvent: outerThis.get('selectedEvent')
           }
         })
         .then(({ entitiesThatExistInMISP }) => {
@@ -330,7 +395,8 @@ polarity.export = PolarityComponent.extend({
           outerThis.set(
             'createErrorMessage',
             'Failed to Create IOC: ' +
-              (err && (err.message || err.title || err.description)) || 'Unknown Reason'
+              (err && (err.detail || err.message || err.title || err.description)) ||
+              'Unknown Reason'
           );
         })
         .finally(() => {
@@ -357,8 +423,17 @@ polarity.export = PolarityComponent.extend({
     },
     searchTags: function (term) {
       return new Ember.RSVP.Promise((resolve, reject) => {
-        Ember.run.debounce(this, this.searchTags, term, resolve, reject, 600);
+        Ember.run.debounce(this, this.searchTags, term, resolve, reject, 500);
       });
+    },
+    searchEvents: function (term) {
+      return new Ember.RSVP.Promise((resolve, reject) => {
+        Ember.run.debounce(this, this.searchEvents, term, resolve, reject, 500);
+      });
+    },
+    updateSelectedEvent: function (value) {
+      console.log(value);
+      this.set('selectedEvent', value.target.value);
     },
     addTags: function (tags) {
       const selectedTag = this.get('selectedTag');
@@ -376,6 +451,7 @@ polarity.export = PolarityComponent.extend({
 
       this.set('selectedTags', selectedTags.concat(newSelectedTags));
       this.set('selectedTag', []);
+      this.set('editingTags', false);
     }
   }
 });

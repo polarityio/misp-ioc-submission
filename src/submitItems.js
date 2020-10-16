@@ -4,16 +4,9 @@ const { ATTIBUTE_TYPES, ENTITY_TYPES } = require('./constants');
 
 const submitItems = async (
   {
-    newIocsToSubmit,
     previousEntitiesInMISP,
-    shouldPublish,
-    eventInfo,
-    distribution,
-    threatLevel,
-    analysis,
-    attributeCategory,
-    attributeType,
-    submitTags
+    submitTags,
+    ...attributeCreationProperties
   },
   requestWithDefaults,
   options,
@@ -22,16 +15,10 @@ const submitItems = async (
 ) => {
   try {
     const createdAttributes = await createAttributes(
-      threatLevel,
-      eventInfo,
-      shouldPublish,
-      analysis,
-      distribution,
-      attributeCategory,
-      attributeType,
-      newIocsToSubmit,
+      attributeCreationProperties,
       options,
-      requestWithDefaults
+      requestWithDefaults,
+      Logger
     );
 
     await createTags(createdAttributes, submitTags, options, requestWithDefaults, Logger);
@@ -46,26 +33,35 @@ const submitItems = async (
       'IOC Creation Failed'
     );
     return callback({
-      err: error,
-      detail: 'Failed to Create IOC in MISP'
+      errors: [
+        {
+          err: error,
+          detail: 'MISP IOC Submission Error - ' + error
+        }
+      ]
     });
   }
 };
 
 const createAttributes = async (
-  threatLevel,
-  eventInfo,
-  shouldPublish,
-  analysis,
-  distribution,
-  attributeCategory,
-  attributeType,
-  newIocsToSubmit,
+  {
+    newIocsToSubmit,
+    shouldPublish,
+    eventInfo,
+    distribution,
+    threatLevel,
+    analysis,
+    attributeCategory,
+    attributeType,
+    submitNewEvent,
+    selectedEvent
+  },
   options,
-  requestWithDefaults
+  requestWithDefaults,
+  Logger
 ) => {
-  const eventCreationResults = await requestWithDefaults({
-    url: `${options.url}/events`,
+  const eventResults = await requestWithDefaults({
+    url: `${options.url}/events${submitNewEvent ? '' : `/${selectedEvent.id}`}`,
     method: 'POST',
     headers: {
       Authorization: options.apiKey,
@@ -74,11 +70,13 @@ const createAttributes = async (
     },
     body: JSON.stringify({
       Event: {
-        threat_level_id: threatLevel,
-        info: eventInfo,
-        published: shouldPublish,
-        analysis,
-        distribution,
+        ...(submitNewEvent && {
+          threat_level_id: threatLevel,
+          info: eventInfo,
+          published: shouldPublish,
+          analysis,
+          distribution
+        }),
         Attribute: buildAttributes(
           distribution,
           attributeCategory,
@@ -87,14 +85,32 @@ const createAttributes = async (
       }
     })
   });
+  
 
-  const createdAttributes = fp.getOr([], 'body.Event.Attribute', eventCreationResults);
+  const createdAttributes = fp.flow(
+    fp.getOr([], 'body.Event.Attribute'),
+    fp.thru((attributes) =>
+      submitNewEvent
+        ? attributes
+        : getOnlyNewlyCreatedAttributes(attributes, newIocsToSubmit)
+    )
+  )(eventResults);
 
-  return fp.map((foundEntity) => ({
-    ...foundEntity,
-    type: ENTITY_TYPES[foundEntity.type]
-  }))(createdAttributes);
+  return createdAttributes;
 };
+
+const getOnlyNewlyCreatedAttributes = (attributes, newIocsToSubmit) =>
+  fp.reduce(
+    (agg, attribute) => {
+      const foundIoc = fp.find(
+        (newIoc) => formatComparableString(newIoc) === formatComparableString(attribute),
+        newIocsToSubmit
+      );
+      return foundIoc ? agg.concat({ ...attribute, type: foundIoc.type }) : agg;
+    },
+    [],
+    attributes
+  );
 
 const buildAttributes = (distribution, attributeCategory, attributeType) =>
   fp.map(({ type, value }) => ({
@@ -126,5 +142,7 @@ const createTags = (createdAttributes, submitTags, options, requestWithDefaults)
       )
     )(createdAttributes)
   );
+
+const formatComparableString = fp.flow(fp.get('value'), fp.toLower, fp.trim);
 
 module.exports = submitItems;

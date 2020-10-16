@@ -11,11 +11,12 @@ const ATTIBUTE_TYPES = {
 
 const ENTITY_TYPES = {
   domain: 'domain',
-  'ip-src': 'ip',
-  'email-src': 'email',
-  'x509-fingerprint-md5': 'md5',
-  'x509-fingerprint-sha1': 'sha1',
-  'x509-fingerprint-sha256': 'sha256'
+  IPv4: 'ip',
+  IPv6: 'ip',
+  email: 'email',
+  MD5: 'md5',
+  SHA1: 'sha1',
+  SHA256: 'sha256'
 };
 
 module.exports = {

@@ -33,7 +33,10 @@ const getLookupResults = (
               })
             });
 
-            return fp.getOr([], 'body.response.Attribute', searchResponse);
+            return fp.flow(
+              fp.getOr([], 'body.response.Attribute'),
+              fp.map((attribute) => ({ ...attribute, type: entity.type }))
+            )(searchResponse);
           }, entitiesPartition)
         )
       );

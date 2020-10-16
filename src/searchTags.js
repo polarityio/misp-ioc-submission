@@ -44,8 +44,12 @@ const searchTags = async (
   } catch (error) {
     Logger.error(error, { detail: 'Failed to Get Tags from MISP' }, 'Get Tags Failed');
     return callback({
-      err: error,
-      detail: 'Failed to Get Tags from MISP'
+      errors: [
+        {
+          err: error,
+          detail: 'MISP Tag Search Error - ' + error
+        }
+      ]
     });
   }
 };
