@@ -13,7 +13,7 @@ const searchTags = async (
       [],
       'body.Tag',
       await requestWithDefaults({
-        url: `${options.url}/tags/index/searchall:${fp.toLower(term)}`,
+        url: `${options.url}/tags/index/searchall:${fp.toLower(term)}/limit:20`,
         method: 'GET',
         headers: {
           Authorization: options.apiKey,
