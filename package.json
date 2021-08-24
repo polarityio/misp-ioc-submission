@@ -1,7 +1,7 @@
 {
   "main": "./integration.js",
   "name": "misp-ioc-submission",
-  "version": "3.0.4-beta",
+  "version": "3.0.3-beta",
   "private": true,
   "license": "MIT",
   "author": "Polarity",
