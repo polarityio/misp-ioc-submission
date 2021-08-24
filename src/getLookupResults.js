@@ -10,17 +10,28 @@ let previousIpRegexAsString = '';
 let domainBlocklistRegex = null;
 let ipBlocklistRegex = null;
 
+<<<<<<< Updated upstream
 const getLookupResults = async (entities, options, requestWithDefaults, Logger) => {
   const { entitiesPartition, ignoredIpLookupResults } = splitOutIgnoredIps(entities);
 
   _setupRegexBlocklists(options, Logger);
+=======
+const getLookupResults = async (entities, options, requestWithDefaults, log) => {
+  const { entitiesPartition, ignoredIpLookupResults } = splitOutIgnoredIps(entities);
+
+  _setupRegexBlocklists(options, log);
+>>>>>>> Stashed changes
 
   const entitiesThatExistInMISP = fp.flatten(
     await Promise.all(
       fp.map(async (entity) => {
         let searchResponse;
 
+<<<<<<< Updated upstream
         if (!_isEntityBlocklisted(entity, options, Logger)) {
+=======
+        if (!_isEntityBlocklisted(entity, options, log)) {
+>>>>>>> Stashed changes
           searchResponse = await requestWithDefaults({
             url: `${options.url}/attributes/restSearch`,
             method: 'POST',
@@ -79,11 +90,12 @@ const getLookupResults = async (entities, options, requestWithDefaults, Logger) 
     categoriesAndTypes
   );
 
-  Logger.trace({ lookupResults, entitiesThatExistInMISP }, 'Lookup Results');
+  log.trace({ lookupResults, entitiesThatExistInMISP }, 'Lookup Results');
 
   return lookupResults.concat(ignoredIpLookupResults);
 };
 
+<<<<<<< Updated upstream
 function _isEntityBlocklisted(entity, options, Logger) {
   const blocklist = options.blocklist;
 
@@ -117,10 +129,39 @@ function _isEntityBlocklisted(entity, options, Logger) {
 }
 
 function _setupRegexBlocklists(options, Logger) {
+=======
+function _isEntityBlocklisted(entity, options) {
+  const blocklist = options.blocklist;
+
+  Log.trace({ blocklist: blocklist }, 'checking to see what blocklist looks like');
+
+  const ipIsInBlocklistRegex =
+    ipBlocklistRegex !== null &&
+    entity.isIP &&
+    !entity.isPrivateIP &&
+    ipBlocklistRegex.test(entity.value);
+
+  if (ipIsInBlocklistRegex)
+    log.debug({ ip: entity.value }, 'Blocked BlockListed IP Lookup');
+
+  const domainIsInBlocklistRegex =
+    domainBlocklistRegex !== null &&
+    entity.isDomain &&
+    domainBlocklistRegex.test(entity.value);
+
+  if (domainIsInBlocklistRegex)
+    log.debug({ domain: entity.value }, 'Blocked BlockListed Domain Lookup');
+
+  return isInBlocklist || ipIsInBlocklistRegex || domainIsInBlocklistRegex;
+}
+
+function _setupRegexBlocklists(options, log) {
+>>>>>>> Stashed changes
   if (
     options.domainBlocklistRegex !== previousDomainRegexAsString &&
     options.domainBlocklistRegex.length === 0
   ) {
+<<<<<<< Updated upstream
     Logger.debug('Removing Domain Blocklist Regex Filtering');
     previousDomainRegexAsString = '';
     domainBlocklistRegex = null;
@@ -133,12 +174,25 @@ function _setupRegexBlocklists(options, Logger) {
       );
       domainBlocklistRegex = new RegExp(options.domainBlocklistRegex, 'i');
     }
+=======
+    log.debug('Removing Domain Blocklist Regex Filtering');
+    previousDomainRegexAsString = '';
+    domainBlocklistRegex = null;
+  } else if (options.domainBlocklistRegex !== previousDomainRegexAsString) {
+    previousDomainRegexAsString = options.domainBlocklistRegex;
+    log.debug(
+      { domainBlocklistRegex: previousDomainRegexAsString },
+      'Modifying Domain Blocklist Regex'
+    );
+    domainBlocklistRegex = new RegExp(options.domainBlocklistRegex, 'i');
+>>>>>>> Stashed changes
   }
 
   if (
     options.ipBlocklistRegex !== previousIpRegexAsString &&
     options.ipBlocklistRegex.length === 0
   ) {
+<<<<<<< Updated upstream
     Logger.debug('Removing IP Blocklist Regex Filtering');
     previousIpRegexAsString = '';
     ipBlocklistRegex = null;
@@ -151,6 +205,18 @@ function _setupRegexBlocklists(options, Logger) {
       );
       ipBlocklistRegex = new RegExp(options.ipBlocklistRegex, 'i');
     }
+=======
+    log.debug('Removing IP Blocklist Regex Filtering');
+    previousIpRegexAsString = '';
+    ipBlocklistRegex = null;
+  } else if (options.ipBlocklistRegex !== previousIpRegexAsString) {
+    previousIpRegexAsString = options.ipBlocklistRegex;
+    log.debug(
+      { ipBlocklistRegex: previousIpRegexAsString },
+      'Modifying IP Blocklist Regex'
+    );
+    ipBlocklistRegex = new RegExp(options.ipBlocklistRegex, 'i');
+>>>>>>> Stashed changes
   }
 }
 
