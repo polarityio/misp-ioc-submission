@@ -28,6 +28,15 @@ If checked, users will be able to delete an Attribute from MISP. (this setting m
 
 > ***NOTE***: When you delete an Attribute you are doing a soft delete of the Attribute from the entire system, but will not delete Events containing those attributes.
 
+### blocklist
+List of domains and IPs that you never want to send to misp.
+
+### domainBlockListRegex 
+Domains that match the given regex will not be looked up.
+
+### ipBlocklistRegex 
+IPs that match the given regex will not be looked up.
+
 ## Installation Instructions
 
 Installation instructions for integrations are provided on the [PolarityIO GitHub Page](https://polarityio.github.io/).
