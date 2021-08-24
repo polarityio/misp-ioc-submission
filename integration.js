@@ -14,6 +14,7 @@ let Logger;
 let requestWithDefaults;
 const startup = (logger) => {
   Logger = logger;
+  Logger.trace({ LOG: logger });
   requestWithDefaults = createRequestWithDefaults(Logger);
 };
 
@@ -23,7 +24,7 @@ const options = {
     ..._options,
     url: url.endsWith('/') ? url.slice(0, -1) : url
   };
-
+  
   let lookupResults;
   try {
     lookupResults = await getLookupResults(
