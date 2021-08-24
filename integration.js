@@ -17,10 +17,9 @@ const startup = (logger) => {
   requestWithDefaults = createRequestWithDefaults(Logger);
 };
 
-
 const doLookup = async (entities, { url, uiUrl, ..._options }, cb) => {
   Logger.debug({ entities }, 'Entities');
-  const options = {
+const options = {
     ..._options,
     url: url.endsWith('/') ? url.slice(0, -1) : url
   };
@@ -42,8 +41,7 @@ const doLookup = async (entities, { url, uiUrl, ..._options }, cb) => {
   cb(null, lookupResults);
 };
 
-
-const onMessage = async ({ data: { action, ...actionParams} }, options, callback) => {
+const onMessage = async ({ data: { action, ...actionParams } }, options, callback) => {
   if (action === 'deleteItem') {
     deleteItem(actionParams, requestWithDefaults, options, Logger, callback);
   } else if (action === 'submitItems') {
