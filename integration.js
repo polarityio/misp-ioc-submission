@@ -14,7 +14,6 @@ let Logger;
 let requestWithDefaults;
 const startup = (logger) => {
   Logger = logger;
-  Logger.trace({ LOG: logger });
   requestWithDefaults = createRequestWithDefaults(Logger);
 };
 
