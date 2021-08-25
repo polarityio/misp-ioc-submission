@@ -10,17 +10,17 @@ let previousIpRegexAsString = '';
 let domainBlocklistRegex = null;
 let ipBlocklistRegex = null;
 
-const getLookupResults = async (entities, options, requestWithDefaults, log) => {
+const getLookupResults = async (entities, options, requestWithDefaults, Logger) => {
   const { entitiesPartition, ignoredIpLookupResults } = splitOutIgnoredIps(entities);
 
-  _setupRegexBlocklists(options, log);
+  _setupRegexBlocklists(options, Logger);
 
   const entitiesThatExistInMISP = fp.flatten(
     await Promise.all(
       fp.map(async (entity) => {
         let searchResponse;
 
-        if (!_isEntityBlocklisted(entity, options, log)) {
+        if (!_isEntityBlocklisted(entity, options, Logger)) {
           searchResponse = await requestWithDefaults({
             url: `${options.url}/attributes/restSearch`,
             method: 'POST',
@@ -79,7 +79,7 @@ const getLookupResults = async (entities, options, requestWithDefaults, log) => 
     categoriesAndTypes
   );
 
-  log.trace({ lookupResults, entitiesThatExistInMISP }, 'Lookup Results');
+  Logger.trace({ lookupResults, entitiesThatExistInMISP }, 'Lookup Results');
 
   return lookupResults.concat(ignoredIpLookupResults);
 };
@@ -87,7 +87,7 @@ const getLookupResults = async (entities, options, requestWithDefaults, log) => 
 function _isEntityBlocklisted(entity, options) {
   const blocklist = options.blocklist;
 
-  Log.trace({ blocklist: blocklist }, 'checking to see what blocklist looks like');
+  Logger.trace({ blocklist: blocklist }, 'checking to see what blocklist looks like');
 
   const ipIsInBlocklistRegex =
     ipBlocklistRegex !== null &&
@@ -96,7 +96,7 @@ function _isEntityBlocklisted(entity, options) {
     ipBlocklistRegex.test(entity.value);
 
   if (ipIsInBlocklistRegex)
-    log.debug({ ip: entity.value }, 'Blocked BlockListed IP Lookup');
+    Logger.debug({ ip: entity.value }, 'Blocked BlockListed IP Lookup');
 
   const domainIsInBlocklistRegex =
     domainBlocklistRegex !== null &&
@@ -104,22 +104,22 @@ function _isEntityBlocklisted(entity, options) {
     domainBlocklistRegex.test(entity.value);
 
   if (domainIsInBlocklistRegex)
-    log.debug({ domain: entity.value }, 'Blocked BlockListed Domain Lookup');
+    Logger.debug({ domain: entity.value }, 'Blocked BlockListed Domain Lookup');
 
   return isInBlocklist || ipIsInBlocklistRegex || domainIsInBlocklistRegex;
 }
 
-function _setupRegexBlocklists(options, log) {
+function _setupRegexBlocklists(options, Logger) {
   if (
     options.domainBlocklistRegex !== previousDomainRegexAsString &&
     options.domainBlocklistRegex.length === 0
   ) {
-    log.debug('Removing Domain Blocklist Regex Filtering');
+    Logger.debug('Removing Domain Blocklist Regex Filtering');
     previousDomainRegexAsString = '';
     domainBlocklistRegex = null;
   } else if (options.domainBlocklistRegex !== previousDomainRegexAsString) {
     previousDomainRegexAsString = options.domainBlocklistRegex;
-    log.debug(
+    Logger.debug(
       { domainBlocklistRegex: previousDomainRegexAsString },
       'Modifying Domain Blocklist Regex'
     );
@@ -130,12 +130,12 @@ function _setupRegexBlocklists(options, log) {
     options.ipBlocklistRegex !== previousIpRegexAsString &&
     options.ipBlocklistRegex.length === 0
   ) {
-    log.debug('Removing IP Blocklist Regex Filtering');
+    Logger.debug('Removing IP Blocklist Regex Filtering');
     previousIpRegexAsString = '';
     ipBlocklistRegex = null;
   } else if (options.ipBlocklistRegex !== previousIpRegexAsString) {
     previousIpRegexAsString = options.ipBlocklistRegex;
-    log.debug(
+    Logger.debug(
       { ipBlocklistRegex: previousIpRegexAsString },
       'Modifying IP Blocklist Regex'
     );
