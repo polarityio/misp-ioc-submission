@@ -77,6 +77,33 @@ module.exports = {
       type: 'boolean',
       userCanEdit: true,
       adminOnly: false
+    },
+    {
+      key: 'blocklist',
+      name: 'Ignored Entities',
+      description: 'List of domains and IPs that you never want to send to misp',
+      default: '',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: false
+    },
+    {
+      key: 'domainBlocklistRegex',
+      name: 'Ignored Domain Regex',
+      description: 'Domains that match the given regex will not be looked up.',
+      default: '',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: false
+    },
+    {
+      key: 'ipBlocklistRegex',
+      name: 'Ignored IP Regex',
+      description: 'IPs that match the given regex will not be looked up.',
+      default: '',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: false
     }
   ]
 };
