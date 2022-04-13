@@ -84,7 +84,7 @@ const getLookupResults = async (entities, options, requestWithDefaults, Logger) 
   return lookupResults.concat(ignoredIpLookupResults);
 };
 
-function _isEntityBlocklisted(entity, options) {
+function _isEntityBlocklisted(entity, options, Logger) {
   const blocklist = options.blocklist;
 
   Logger.trace({ blocklist: blocklist }, 'checking to see what blocklist looks like');
