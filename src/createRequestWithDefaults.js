@@ -66,7 +66,7 @@ const createRequestWithDefaults = (Logger) => {
   };
 
   const checkForStatusError = ({ statusCode, body }, requestOptions) => {
-    Logger.trace({ visualLogID: '******************', statusCode, body, requestOptions });
+    Logger.trace({ visualLogID: '******************', statusCode, body });
     checkForInternalServiceError(statusCode, body);
     const roundedStatus = Math.round(statusCode / 100) * 100;
     if (roundedStatus !== 200 && roundedStatus !== 300) {
