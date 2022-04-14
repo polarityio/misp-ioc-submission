@@ -29,13 +29,13 @@ If checked, users will be able to delete an Attribute from MISP. (this setting m
 > ***NOTE***: When you delete an Attribute you are doing a soft delete of the Attribute from the entire system, but will not delete Events containing those attributes.
 
 ### Ignored Entities
-List of domains and IPs that you never want to send to misp.
+A Comma Separated List of Domains and IPs you wish the integration to ignore and not look up.
 
 ### Ignored Domain Regex
-Domains that match the given regex will not be looked up.
+Any searched Domains that match this Regex will be ignored and not look up.
 
 ### Ignored IP Regex
-IPs that match the given regex will not be looked up.
+Any searched IP Address that match this Regex will be ignored and not look up.
 
 ## Installation Instructions
 

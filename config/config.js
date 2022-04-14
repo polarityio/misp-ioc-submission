@@ -81,7 +81,8 @@ module.exports = {
     {
       key: 'blocklist',
       name: 'Ignored Entities',
-      description: 'List of domains and IPs that you never want to send to misp',
+      description:
+        'A Comma Separated List of Domains and IPs you wish the integration to ignore and not look up.',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -90,7 +91,8 @@ module.exports = {
     {
       key: 'domainBlocklistRegex',
       name: 'Ignored Domain Regex',
-      description: 'Domains that match the given regex will not be looked up.',
+      description:
+        'Any searched Domains that match this Regex will be ignored and not look up.',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -99,7 +101,8 @@ module.exports = {
     {
       key: 'ipBlocklistRegex',
       name: 'Ignored IP Regex',
-      description: 'IPs that match the given regex will not be looked up.',
+      description:
+        'Any searched IP Address that match this Regex will be ignored and not look up.',
       default: '',
       type: 'text',
       userCanEdit: false,
