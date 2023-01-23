@@ -1,7 +1,7 @@
 {
-  "main": "./integration.js",
   "name": "misp-ioc-submission",
-  "version": "3.1.5-beta",
+  "version": "3.1.6-beta",
+  "main": "./integration.js",
   "private": true,
   "license": "MIT",
   "author": "Polarity",
@@ -9,6 +9,6 @@
     "@ctrl/tinycolor": "^3.1.4",
     "aigle": "^1.14.1",
     "lodash": "^4.17.21",
-    "request": "^2.88.2"
+    "postman-request": "^2.88.1-postman.31"
   }
 }
