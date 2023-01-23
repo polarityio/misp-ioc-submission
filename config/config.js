@@ -4,6 +4,7 @@ module.exports = {
   description:
     'Malware Information and Sharing Platform (MISP) threat intelligence platform IOC Submission',
   entityTypes: ['domain', 'IPv4', 'IPv6', 'hash', 'email'],
+  defaultColor: 'light-pink',
   styles: ['./styles/styles.less'],
   block: {
     component: {
