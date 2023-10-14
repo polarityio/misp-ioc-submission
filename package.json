@@ -6,7 +6,7 @@
   "license": "MIT",
   "author": "Polarity",
   "dependencies": {
-    "@ctrl/tinycolor": "^3.1.4",
+    "@ctrl/tinycolor": "^3.6.1",
     "aigle": "^1.14.1",
     "lodash": "^4.17.21",
     "postman-request": "^2.88.1-postman.31"
