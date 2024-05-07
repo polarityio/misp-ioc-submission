@@ -33,6 +33,7 @@ const createLookupResults = (
         ...entities[0],
         value: 'MISP IOC Submission'
       },
+      displayValue: 'MISP IOC Submission',
       isVolatile: true,
       data: {
         summary,
