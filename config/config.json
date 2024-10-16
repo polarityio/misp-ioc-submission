@@ -3,7 +3,7 @@
   "name": "MISP IOC Submission",
   "acronym": "MISP+",
   "description": "Malware Information and Sharing Platform (MISP) threat intelligence platform IOC Submission",
-  "entityTypes": ["domain", "IPv4", "IPv6", "hash", "email"],
+  "entityTypes": ["domain", "IPv4", "IPv6", "MD5", "SHA1", "SHA256", "email"],
   "defaultColor": "light-pink",
   "styles": ["./styles/styles.less"],
   "block": {
@@ -23,13 +23,6 @@
     }
   },
   "onDemandOnly": true,
-  "request": {
-    "cert": "",
-    "key": "",
-    "passphrase": "",
-    "ca": "",
-    "proxy": ""
-  },
   "logging": {
     "level": "info"
   },
