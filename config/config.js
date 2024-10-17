@@ -3,7 +3,7 @@ module.exports = {
   acronym: 'MISP+',
   description:
     'Malware Information and Sharing Platform (MISP) threat intelligence platform IOC Submission',
-  entityTypes: ['domain', 'IPv4', 'IPv6', 'hash', 'email'],
+  entityTypes: ['domain', 'IPv4', 'IPv6', 'MD5', 'SHA1', 'SHA256', 'email'],
   defaultColor: 'light-pink',
   styles: ['./styles/styles.less'],
   block: {
@@ -38,7 +38,7 @@ module.exports = {
     ca: '',
     // An HTTP proxy to be used. Supports proxy Auth with Basic Auth, identical to support for
     // the url parameter (by embedding the auth info in the uri)
-    proxy: ""
+    proxy: ''
   },
   logging: {
     level: 'info' //trace, debug, info, warn, error, fatal
